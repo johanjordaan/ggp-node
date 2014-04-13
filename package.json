@@ -1,0 +1,15 @@
+{
+  "name": "gdl",
+  "description": "A package using versioning best-practices",
+  "author": "Johan Jordaan <charlie@nodejitsu.com>",
+  "dependencies": {
+    "pegjs": "*"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "grunt-contrib-coffee": "~0.10.1",
+    "grunt-mocha-test": "~0.10.2",
+    "grunt-shell": "~0.6.4"
+  },
+  "engine": "node >= 0.4.1"
+}
