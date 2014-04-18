@@ -1,7 +1,8 @@
 should = require('chai').should()
 expect = require('chai').expect
 
-parser = require("../grammar/grammar_parser.js").parser;
+parser = require("../grammar/grammar_parser").parser;
+parser.yy = require('../grammar/grammar_classes')
 
 tests = [
   "(A B)"
@@ -14,8 +15,10 @@ tests = [
     
 
   "(info)"
-  "(start Match.12 ( (<= (TRUE (cell?x)) (false ?X)) ) 10 20)"
-  "(start Match.12 ((cell 1 2) NOOP) 10 20)"
+  "(START Match.12 ( (<= (TRUE (cell?x)) (false ?X)) ) 10 20)"
+  "(START Match.12 ((cell 1 2) NOOP) 10 20)"
+
+  "(role X)"
 ]
 
 describe 'movement', () ->
@@ -26,7 +29,7 @@ describe 'movement', () ->
         console.log(test);
         #console.log("---------");
         pt = parser.parse(test);
-        #console.log(pt)
+        console.log(pt)
         console.log("=========");
 
 

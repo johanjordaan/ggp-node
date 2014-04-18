@@ -2,7 +2,6 @@
 
 /* lexical grammar */
 %lex
-%option case-insensitive
 
 %%
 \s+                             /* skip whitespace */ 
@@ -47,50 +46,51 @@
 %% /* language grammar */
 
 program
-    : statements     
+    : statements                    { console.log('program>',$1); }
     ;
 
 statements
-    : statements statement
-    | statement
+    : statements statement          { $1.push($2); }
+    | statement                     { $$ = [$1]; }
     ;
 
 statement
-    : relation
-    | rule
+    : relation                      { console.log('statement(rel)>',$1); }
+    | rule                          { console.log('statement(rul)>',$1); }
     ;
 
 relations
-    : relations relation
-    | relation
+    : relations relation            { $1.push($2); }
+    | relation                      { $$ = [$1]; }
     ;
 
 relation
-    : '(' relation_name terms ')'
-    | '(' relation_name ')'
-    | '(' terms ')'
+    : '(' relation_name terms ')'   { console.log('rel(k)>',$2,$3); $$ = { t:'relation', n:$2, v:$3 } }
+    | '(' relation_name ')'         { console.log('rel(e)>',$2); }
+    | '(' term terms ')'            { console.log('rel(t)>',$2,$3); $$ = { t:'terms_relation', v:$2 }} 
+    | '(' term ')'                  { console.log('rel(ts)>',$2,$3); $$ = { t:'terms_relation', v:$2 }} 
     ;
 
 rule
-    : '(<=' relation relations ')'
+    : '(<=' relation relations ')'  { console.log('rule(.)>',$2,$3); $$ = { t:'rule', h:$2, t:$3 }; }
     ;
 
 terms 
-    : terms term
-    | term
+    : terms term                    { $1.push($2); }
+    | term                          { $$ = [$1]; }
     ;
 
 term
-    : CONSTANT
-    | VARIABLE
-    | relation
-    | rule
+    : relation                      { console.log('term(r)>',$1); }
+    | rule                          { console.log('term(u)>',$1); }
+    | CONSTANT                      { console.log('term(c)>',$1); $$ = { t:'constant', v:$1 } }
+    | VARIABLE                      { console.log('term(v)>',$1); $$ = { t:'variable', v:$1 } }
     ;
 
 relation_name
-    : command_relation
-    | gdl_relation
-    | logic_relation
+    : command_relation              { console.log('rname(cmd)>',$1); $$ = { t:'command_relation', v:$1 } }
+    | gdl_relation                  { console.log('rname(gdl)>',$1); $$ = { t:'gdl_relation', v:$1 } }
+    | logic_relation                { console.log('rname(lgc)>',$1); $$ = { t:'logic_relation', v:$1 } }
     ;
 
 command_relation
