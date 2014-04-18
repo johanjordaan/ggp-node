@@ -22,20 +22,19 @@ module.exports = (grunt) ->
     mochaTest:
       test:
         options:
-          reporter: 'spec'
+          reporter: 'dot'
         src: ['test/**/*.js']
 
     shell:
-      peg:
-        command: "pegjs pfgdl_syntax.pegjs ast/gdl_parser.js"
-
+      jison_generate:
+        command: "jison grammar.jison -o grammar/grammar_parser.js"
 
   #grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-mocha-test')
   grunt.loadNpmTasks('grunt-shell')
 
-  grunt.registerTask('default', ['shell:peg','coffee','mochaTest'])
+  grunt.registerTask('default', ['shell:jison_generate','coffee','mochaTest'])
 
 
 

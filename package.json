@@ -3,7 +3,6 @@
   "description": "A GGP (Genarl Gamne Playing) source base for nodejs",
   "author": "Johan Jordaan <me@here.com>",
   "dependencies": {
-    "pegjs": "*",
     "express": "~4.0.0",
     "body-parser": "~1.0.1"
   },
