@@ -1,7 +1,9 @@
-/* description: Parses end executes mathematical expressions. */
+
 
 /* lexical grammar */
 %lex
+
+%options lex case-insensitive
 
 %%
 \s+                             /* skip whitespace */ 
@@ -42,11 +44,10 @@
 
 %start program
 
-
 %% /* language grammar */
 
 program
-    : statements                    { console.log('program>',$1); }
+    : statements                    { yy.program = $1 }
     ;
 
 statements
@@ -65,14 +66,30 @@ relations
     ;
 
 relation
-    : '(' relation_name terms ')'   { console.log('rel(k)>',$2,$3); $$ = { t:'relation', n:$2, v:$3 } }
-    | '(' relation_name ')'         { console.log('rel(e)>',$2); }
-    | '(' term terms ')'            { console.log('rel(t)>',$2,$3); $$ = { t:'terms_relation', v:$2 }} 
-    | '(' term ')'                  { console.log('rel(ts)>',$2,$3); $$ = { t:'terms_relation', v:$2 }} 
+    : known_relation
+    | anonymous_relation
+    | list_relation
+    ;
+
+known_relation
+    : '(' relation_name terms ')'   { $2.terms = $3; $$ = $2; }
+    | '(' relation_name ')'         { $$ = $2; }
+    ;
+
+anonymous_relation
+    : '(' CONSTANT terms ')'        { $$ = new yy.AnonymousRelation($2,$3); } 
+    | '(' CONSTANT ')'              { $$ = new yy.AnonymousRelation($2,[]); }
+    ;
+
+list_relation
+    : '(' relation terms ')'        { $3.unshift($2); $$ = new yy.ListRelation($3); } 
+    | '(' relation ')'              { $$ = new yy.ListRelation([$2]); } 
+    | '(' rule terms ')'            { $3.unshift($2); $$ = new yy.ListRelation($3); }     
+    | '(' rule ')'                  { $$ = new yy.ListRelation([$2]); } 
     ;
 
 rule
-    : '(<=' relation relations ')'  { console.log('rule(.)>',$2,$3); $$ = { t:'rule', h:$2, t:$3 }; }
+    : '(<=' relation relations ')'  { $$ = new yy.Rule($2,$3); }
     ;
 
 terms 
@@ -81,16 +98,16 @@ terms
     ;
 
 term
-    : relation                      { console.log('term(r)>',$1); }
-    | rule                          { console.log('term(u)>',$1); }
-    | CONSTANT                      { console.log('term(c)>',$1); $$ = { t:'constant', v:$1 } }
-    | VARIABLE                      { console.log('term(v)>',$1); $$ = { t:'variable', v:$1 } }
+    : relation                      { $$ = new yy.RelationTerm($1); }
+    | rule                          { $$ = new yy.RuleTerm($1);}
+    | CONSTANT                      { $$ = new yy.ConstantTerm($1); }
+    | VARIABLE                      { $$ = new yy.VariableTerm($1); }
     ;
 
 relation_name
-    : command_relation              { console.log('rname(cmd)>',$1); $$ = { t:'command_relation', v:$1 } }
-    | gdl_relation                  { console.log('rname(gdl)>',$1); $$ = { t:'gdl_relation', v:$1 } }
-    | logic_relation                { console.log('rname(lgc)>',$1); $$ = { t:'logic_relation', v:$1 } }
+    : command_relation              { $$ = new yy.CommandRelation($1,[]); }
+    | gdl_relation                  { $$ = new yy.GDLRelation($1,[]); }
+    | logic_relation                { $$ = new yy.LogicRelation($1,[]); }
     ;
 
 command_relation

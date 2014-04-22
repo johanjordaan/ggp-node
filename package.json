@@ -1,10 +1,11 @@
 {
   "name": "gdl",
-  "description": "A GGP (Genarl Gamne Playing) source base for nodejs",
+  "description": "A GGP (General Gamne Playing) source base for nodejs",
   "author": "Johan Jordaan <me@here.com>",
   "dependencies": {
     "express": "~4.0.0",
-    "body-parser": "~1.0.1"
+    "body-parser": "~1.0.1",
+    "underscore": "~1.6.0"
   },
   "devDependencies": {
     "chai": "*",

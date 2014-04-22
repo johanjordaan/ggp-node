@@ -5,20 +5,29 @@ parser = require("../grammar/grammar_parser").parser;
 parser.yy = require('../grammar/grammar_classes')
 
 tests = [
-  "(A B)"
-  "(A (B C D) E (X Y Z) G)"
-  "(A (B (X) D (<= (true x) (NOT (x))) ) X)"
-  "(A (A NOOP))"
-  "(A (B NOOP) C)"
-  "(A (B (X X) NOOP) C)"
-  "(A (B (X X (Y)) NOOP) C)"
+  #"(A B)"
+  #"(A (B C D) E (X Y Z) G)"
+  #"(A (B (X) D (<= (true x) (NOT (x))) ) X)"
+  #"(A (A NOOP))"
+  #"(A (B NOOP) C)"
+  #"(A (B (X X) NOOP) C)"
+  #"(A (B (X X (Y)) NOOP) C)"
     
 
-  "(info)"
-  "(START Match.12 ( (<= (TRUE (cell?x)) (false ?X)) ) 10 20)"
-  "(START Match.12 ((cell 1 2) NOOP) 10 20)"
+  #"(info)"
+  #"(START Match.12 ( (<= (TRUE (cell?x)) (false ?X)) ) 10 20)"
+  #"(START Match.12 ((cell 1 2) NOOP) 10 20)"
 
-  "(role X)"
+  "(name)"
+  "(name a)"
+  "(name ?a)"
+  "(name ?a b)"
+  "(name ?a (name2 c) b)"
+  "(info)"
+  "(name ((name 1 2) NOOP))"
+  "(start MATCH ((role x)(role o) ) 10 20)"
+  "(<= (cel ?x ?y) (move ?x ?y) )"
+   
 ]
 
 describe 'movement', () ->
@@ -30,6 +39,9 @@ describe 'movement', () ->
         #console.log("---------");
         pt = parser.parse(test);
         console.log(pt)
+        console.log(parser.yy.program[0].as_str())
+
+
         console.log("=========");
 
 
