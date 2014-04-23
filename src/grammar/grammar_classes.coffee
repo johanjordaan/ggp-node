@@ -2,8 +2,7 @@ _ = require("underscore")
 
 class ConstantTerm 
   constructor : (@name) ->
-    @type = "ConstantTerm"
-    console.log "#{@type} : constructed ... #{@name}"
+    @_type = "ConstantTerm"
 
   toString : () ->
     return "#{@name}"
@@ -11,32 +10,28 @@ class ConstantTerm
 class VariableTerm 
   constructor : (@name) ->
     @name = @name.replace("?","")
-    @type = "VariableTerm"
-    console.log "#{@type} : constructed ... #{@name}"
+    @_type = "VariableTerm"
 
   toString : () ->
     return "?#{@name}"
 
 class RelationTerm 
   constructor : (@relation) ->
-    @type = "RelationTerm"
-    console.log "#{@type} : constructed ... #{@relation.name}"
+    @_type = "RelationTerm"
 
   toString : () ->
     return @relation.toString()
 
 class RuleTerm 
   constructor : (@rule) ->
-    @type = "RuleTerm"
-    console.log "#{@type} : constructed ... "
+    @_type = "RuleTerm"
 
   toString : () ->
     return @rule.toString()
 
 class Relation
   constructor : (@name,@terms) ->
-    @type = "Relation"
-    console.log "#{@type} : constructed ... #{@name}"
+    @_type = "Relation"
 
   toString : () ->
     if @terms.length >0
@@ -49,8 +44,7 @@ class Relation
 
 class ListRelation
   constructor : (@terms) ->
-    @type = "ListRelation"
-    console.log "#{@type} : constructed ... #{@toString()}"
+    @_type = "ListRelation"
 
   toString : () ->
     if @terms.length >0
@@ -63,8 +57,7 @@ class ListRelation
 
 class Rule
   constructor : (@head,@body) ->
-    @type = "Rule"
-    console.log "#{@type} : constructed ... "
+    @_type = "Rule"
 
   toString : () ->
     body_terms_str = []

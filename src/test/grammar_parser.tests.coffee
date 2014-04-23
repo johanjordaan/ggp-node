@@ -1,10 +1,10 @@
 should = require('chai').should()
 expect = require('chai').expect
 
-parser = require("../grammar/grammar_parser").parser;
+parser = require('../grammar/grammar_parser').parser;
 parser.yy = require('../grammar/grammar_classes') 
-parser.yy.cmd = require('../grammar/commands') 
 
+commands = require('../grammar/commands')
 
 tests = [
   "(A B)"
@@ -42,6 +42,20 @@ describe 'parse', () ->
         test_res = parser.yy.program[0].toString()
         test.should.equal test_res
     x(test)    
+
+describe 'commands', () ->
+    it 'should build the info command', () ->
+      pt = parser.parse('(INFO)');
+      pt.should.equal true
+      cmd = commands.construct(parser.yy.program[0])
+      console.log parser.yy.program
+      console.log cmd.toString()
+      console.log cmd.execute
+        info : ()->
+          return x = 
+            status : 'available'
+            name : 'node_player'
+
 
     
   

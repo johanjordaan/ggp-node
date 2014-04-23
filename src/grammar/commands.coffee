@@ -1,6 +1,9 @@
-_ = require("underscore")
+_ = require('underscore')
+grammar_classes = require('./grammar_classes.js')
 
 class InfoCommand
+  @command = 'info'
+
   constructor : () ->
     @_type = "InfoCommand"
 
@@ -42,7 +45,24 @@ class StopCommand
   toString : () ->
     return "(stop #{@match_id} #{@moves.as_str()})"
 
+construct = (statement) ->
+  if !statement._type?
+    throw "Not a statement"
+
+  if !statement._type instanceof grammar_classes.Relation
+    throw "Not a relation.Commands need to be ralations"
+
+  if statement.name.name.toLowerCase() == InfoCommand.command.toLowerCase()
+    return new InfoCommand()
+
+
+
+
 module.exports = 
-  InfoCommand : InfoCommand
-  StartCommand : StartCommand
-  PlayCommand : PlayCommand
+  construct : construct
+  #InfoCommand : InfoCommand
+  #StartCommand : StartCommand
+  #PlayCommand : PlayCommand
+  #StopCommand : StopCommand
+
+
