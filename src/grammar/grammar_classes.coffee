@@ -5,7 +5,7 @@ class ConstantTerm
     @type = "ConstantTerm"
     console.log "#{@type} : constructed ... #{@name}"
 
-  as_str : () ->
+  toString : () ->
     return "#{@name}"
 
 class VariableTerm 
@@ -14,7 +14,7 @@ class VariableTerm
     @type = "VariableTerm"
     console.log "#{@type} : constructed ... #{@name}"
 
-  as_str : () ->
+  toString : () ->
     return "?#{@name}"
 
 class RelationTerm 
@@ -22,84 +22,55 @@ class RelationTerm
     @type = "RelationTerm"
     console.log "#{@type} : constructed ... #{@relation.name}"
 
-  as_str : () ->
-    return @relation.as_str()
+  toString : () ->
+    return @relation.toString()
 
 class RuleTerm 
   constructor : (@rule) ->
     @type = "RuleTerm"
     console.log "#{@type} : constructed ... "
 
-  as_str : () ->
-    return @rule.as_str()
+  toString : () ->
+    return @rule.toString()
 
-class CommandRelation
+class Relation
   constructor : (@name,@terms) ->
-    @type = "CommandRelation"
+    @type = "Relation"
     console.log "#{@type} : constructed ... #{@name}"
 
-  as_str : () ->
-    terms_str = []
-    for term in @terms
-      terms_str.push(term.as_str())
-    return "(#{@name} #{terms_str.join(' ')})"
-
-class GDLRelation
-  constructor : (@name,@terms) ->
-    @type = "GDLRelation"
-    console.log "#{@type} : constructed ... #{@name}"
-
-  as_str : () ->
-    terms_str = []
-    for term in @terms
-      terms_str.push(term.as_str())
-    return "(#{@name} #{terms_str.join(' ')})"
-
-class LogicRelation
-  constructor : (@name,@terms) ->
-    @type = "LogicRelation"
-    console.log "#{@type} : constructed ... #{@name}"
-
-  as_str : () ->
-    terms_str = []
-    for term in @terms
-      terms_str.push(term.as_str())
-    return "(#{@name} #{terms_str.join(' ')})"
-
-class AnonymousRelation
-  constructor : (@name,@terms) ->
-    @type = "AnonymousRelation"
-    console.log "#{@type} : constructed ... #{@name}"
-
-  as_str : () ->
-    terms_str = []
-    for term in @terms
-      terms_str.push(term.as_str())
-    return "(#{@name} #{terms_str.join(' ')})"
+  toString : () ->
+    if @terms.length >0
+      terms_str = []
+      for term in @terms
+        terms_str.push(term.toString())
+      return "(#{@name} #{terms_str.join(' ')})"
+    else
+      return "(#{@name})"
 
 class ListRelation
   constructor : (@terms) ->
     @type = "ListRelation"
-    console.log "#{@type} : constructed ... #{@as_str()}"
+    console.log "#{@type} : constructed ... #{@toString()}"
 
-  as_str : () ->
-    terms_str = []
-    for term in @terms
-      terms_str.push(term.as_str())
-    return "(#{terms_str.join(' ')})"
-
-
+  toString : () ->
+    if @terms.length >0
+      terms_str = []
+      for term in @terms
+        terms_str.push(term.toString())
+      return "(#{terms_str.join(' ')})"
+    else
+      return "()"        
 
 class Rule
   constructor : (@head,@body) ->
     @type = "Rule"
     console.log "#{@type} : constructed ... "
 
-  as_str : () ->
+  toString : () ->
     body_terms_str = []
     for body_term in @body
-      body_terms_str.push(body_term.as_str())
-    return "(<= #{@head.as_str()} #{body_terms_str.join(' ')})"
+      body_terms_str.push(body_term.toString())
+    return "(<= #{@head.toString()} #{body_terms_str.join(' ')})"
 
 
 module.exports = 
@@ -108,10 +79,7 @@ module.exports =
   RelationTerm : RelationTerm
   RuleTerm : RuleTerm
 
-  CommandRelation : CommandRelation
-  GDLRelation : GDLRelation
-  LogicRelation : LogicRelation
-  AnonymousRelation : AnonymousRelation
+  Relation : Relation
   ListRelation : ListRelation
 
   Rule : Rule

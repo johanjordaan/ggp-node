@@ -1,7 +1,8 @@
 http = require('http')
 express = require('express')
 bodyParser = require('body-parser')
-gdlparser = require("../ast/gdl_parser.js")
+parser = require("../grammar/grammar_parser.js")
+
 
 app = express()
 
@@ -14,19 +15,23 @@ app.use (req, res, next) ->
     req.raw_body = data
     next()
 
-app.use bodyParser()
+#app.use bodyParser()
 
-app.use (req, res, next) ->
-  console.log(req.raw_body)
-  next()
+#app.use (req, res, next) ->
+#  console.log(req.raw_body)
+#  next()
 
 #app.get '/',(req, res) ->  
 #
 #  res.send('<form method="post"><input type="submit" value="Submit"><input type="text" name="Something"/></form>')
 
 app.post '/',(req, res) ->
-  p = gdlparser.parse(req.raw_body)
+  ptree = parser.parse(req.raw_body)
   
+
+  res.send ptree.execute()
+
+###
   if p.statements[0].name == 'info'
     res.send '((status available)(name nodeplayer))'
   if p.statements[0].name == 'start'
@@ -37,7 +42,7 @@ app.post '/',(req, res) ->
     res.send 'done'
   if p.statements[0].name == 'abort'
     res.send 'done'
-
+###
 
 
   

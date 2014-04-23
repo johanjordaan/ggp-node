@@ -2,21 +2,23 @@ should = require('chai').should()
 expect = require('chai').expect
 
 parser = require("../grammar/grammar_parser").parser;
-parser.yy = require('../grammar/grammar_classes')
+parser.yy = require('../grammar/grammar_classes') 
+parser.yy.cmd = require('../grammar/commands') 
+
 
 tests = [
-  #"(A B)"
-  #"(A (B C D) E (X Y Z) G)"
-  #"(A (B (X) D (<= (true x) (NOT (x))) ) X)"
-  #"(A (A NOOP))"
-  #"(A (B NOOP) C)"
-  #"(A (B (X X) NOOP) C)"
-  #"(A (B (X X (Y)) NOOP) C)"
+  "(A B)"
+  "(A (B C D) E (X Y Z) G)"
+  "(A (B (X) D (<= (true x) (NOT (x)))) X)"
+  "(A (A NOOP))"
+  "(A (B NOOP) C)"
+  "(A (B (X X) NOOP) C)"
+  "(A (B (X X (Y)) NOOP) C)"
     
 
-  #"(info)"
-  #"(START Match.12 ( (<= (TRUE (cell?x)) (false ?X)) ) 10 20)"
-  #"(START Match.12 ((cell 1 2) NOOP) 10 20)"
+  "(info)"
+  "(START Match.12 ((<= (TRUE (cell ?x)) (false ?X))) 10 20)"
+  "(START Match.12 ((cell 1 2) NOOP) 10 20)"
 
   "(name)"
   "(name a)"
@@ -24,26 +26,22 @@ tests = [
   "(name ?a b)"
   "(name ?a (name2 c) b)"
   "(info)"
+  "(start MATCH ((role x) (role o)) 10 20)"
+  "(play MATCH (NOOP (cell 1 2) NOOP))"
   "(name ((name 1 2) NOOP))"
-  "(start MATCH ((role x)(role o) ) 10 20)"
-  "(<= (cel ?x ?y) (move ?x ?y) )"
+  "(<= (cel ?x ?y) (move ?x ?y))"
    
 ]
 
-describe 'movement', () ->
-
-  describe 'movement.update',() ->
-    it 'should parse the empty program', () ->
-      for test in tests
-        console.log(test);
-        #console.log("---------");
+describe 'parse', () ->
+  for test in tests
+    x = (test) ->
+      it 'should parse : '+test, () ->
         pt = parser.parse(test);
-        console.log(pt)
-        console.log(parser.yy.program[0].as_str())
-
-
-        console.log("=========");
-
+        pt.should.equal true
+        test_res = parser.yy.program[0].toString()
+        test.should.equal test_res
+    x(test)    
 
     
   
