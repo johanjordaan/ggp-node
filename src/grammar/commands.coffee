@@ -2,8 +2,6 @@ _ = require('underscore')
 grammar_classes = require('./grammar_classes.js')
 
 class InfoCommand
-  @command = 'info'
-
   constructor : () ->
     @_type = "InfoCommand"
 
@@ -15,11 +13,11 @@ class InfoCommand
     return "(info)"
       
 class StartCommand
-  constructor : (@match_id,@game_definition,@start_clock,@play_clock) ->
+  constructor : (@match_id,@player,@game_definition,@start_clock,@play_clock) ->
     @_type = "StartCommand"
 
   execute : (player) ->
-    return player.start(@match_id,@game_definition,@start_clock,@play_clock)  
+    return player.start(@match_id,@player,@game_definition,@start_clock,@play_clock)  
 
   toString : () ->
     return "(start #{@match_id} #{@game_definition.as_str()} #{@start_clock} #{@play_clock})"
@@ -45,6 +43,16 @@ class StopCommand
   toString : () ->
     return "(stop #{@match_id} #{@moves.as_str()})"
 
+class AbortCommand
+  constructor : (@match_id) ->
+    @_type = "AbortCommand"
+
+  execute : (player) ->
+    return player.abort(@match_id)  
+
+  toString : () ->
+    return "(abort #{@match_id})"
+
 construct = (statement) ->
   if !statement._type?
     throw "Not a statement"
@@ -52,9 +60,25 @@ construct = (statement) ->
   if !statement._type instanceof grammar_classes.Relation
     throw "Not a relation.Commands need to be ralations"
 
-  if statement.name.name.toLowerCase() == InfoCommand.command.toLowerCase()
-    return new InfoCommand()
+  #n = 'x'
+  #z =
+  #  n : InfoCommand
 
+
+  commands = {
+    'info' : InfoCommand
+    'start' : StartCommand
+    'play' : PlayCommand
+    'stop' : StopCommand
+    'abort' : AbortCommand
+  }
+
+  cls =  commands[statement.name.name.toLowerCase()] 
+
+  if cls?
+    return new cls()
+  else
+    throw "Not a valid command"  
 
 
 

@@ -8,7 +8,8 @@
 %%
 \s+                             /* skip whitespace */ 
 
-"(<="                           return '(<=';
+
+"<="                            return '<=';
 
 [a-zA-Z_][a-zA-Z0-9._]*         return 'CONSTANT';
 [0-9]+                          return 'INTEGER'
@@ -50,12 +51,22 @@ relation
     ;
 
 rule
-    : '(<=' relation relations ')'  { $$ = new yy.Rule($2,$3); }
+    : '(' '<=' rule_term rule_terms ')'  { $$ = new yy.Rule($3,$4); }
+    ;
+
+rule_terms
+    : rule_terms rule_term             { $1.push($2); }
+    | rule_term                        { $$ = [$1]; }
     ;
 
 terms 
     : terms term                    { $1.push($2); }
     | term                          { $$ = [$1]; }
+    ;
+
+rule_term
+    : relation                      { $$ = new yy.RelationTerm($1); }
+    | CONSTANT                      { $$ = new yy.ConstantTerm($1); }
     ;
 
 term

@@ -40,6 +40,4 @@ app.post '/',(req, res) ->
 
   res.send ret_val
 
-  
-
 app.listen(8000)

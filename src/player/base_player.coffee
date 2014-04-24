@@ -1,15 +1,16 @@
 
 class Player
   constructor : () ->
+    @name = "node_base_player"
     @current_match_id = null
     @status = 'available'
 
   info : () ->
     return ret_val =
-      name : 'NodePlayer'
+      name : @name
       status : @status
 
-  start : (match_id,game_definition,start_clock,play_clock) ->
+  start : (match_id,player,game_definition,start_clock,play_clock) ->
     if @status != 'available'
       return @status
 
