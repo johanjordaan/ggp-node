@@ -1,8 +1,9 @@
-http = require('http')
+#http = require('http')
 express = require('express')
-bodyParser = require('body-parser')
-parser = require("../grammar/grammar_parser.js")
-
+#bodyParser = require('body-parser')
+parser = require('../grammar/grammar_parser').parser
+parser.yy = require('../grammar/grammar_classes')
+commands = require('../grammar/commands')
 
 app = express()
 
@@ -25,25 +26,19 @@ app.use (req, res, next) ->
 #
 #  res.send('<form method="post"><input type="submit" value="Submit"><input type="text" name="Something"/></form>')
 
+Player = require('../player/base_player').Player
+
+player = new Player()
+
 app.post '/',(req, res) ->
-  ptree = parser.parse(req.raw_body)
-  
+  console.log req.raw_body
+  parser.parse(req.raw_body)
+  cmd = commands.construct(parser.yy.program[0])
+  ret_val = cmd.execute player
 
-  res.send ptree.execute()
+  console.log ret_val
 
-###
-  if p.statements[0].name == 'info'
-    res.send '((status available)(name nodeplayer))'
-  if p.statements[0].name == 'start'
-    res.send 'ready'  
-  if p.statements[0].name == 'play'
-    res.send 'noop'
-  if p.statements[0].name == 'stop'
-    res.send 'done'
-  if p.statements[0].name == 'abort'
-    res.send 'done'
-###
-
+  res.send ret_val
 
   
 

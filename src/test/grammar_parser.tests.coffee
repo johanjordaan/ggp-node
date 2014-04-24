@@ -45,7 +45,7 @@ describe 'parse', () ->
 
 describe 'commands', () ->
     it 'should build the info command', () ->
-      pt = parser.parse('(INFO)');
+      pt = parser.parse('( INFO )');
       pt.should.equal true
       cmd = commands.construct(parser.yy.program[0])
       console.log parser.yy.program

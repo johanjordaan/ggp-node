@@ -6,7 +6,7 @@ class Player
 
   info : () ->
     return ret_val =
-      name : 'Node player'
+      name : 'NodePlayer'
       status : @status
 
   start : (match_id,game_definition,start_clock,play_clock) ->
