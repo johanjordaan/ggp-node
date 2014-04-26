@@ -14,13 +14,15 @@ class Player
     if @status != 'available'
       return @status
 
+    console.log '---->',game_definition.relation
+
     @current_match_id = match_id
     @status = 'busy'
 
     return 'Ready'
 
   play : (match_id,moves) ->
-    return 'NOOP'
+    return '(move 1 2)'
 
   stop : (match_id,moves) ->
     if match_id != @current_match_id
@@ -30,7 +32,7 @@ class Player
     @status = 'available'
     return 'done'
 
-  stop : (match_id) ->
+  abort : (match_id) ->
     if match_id != @current_match_id
       return 'done'
     

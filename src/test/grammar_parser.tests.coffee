@@ -33,6 +33,8 @@ tests = [
   "( <= (cel ?x ?y) (move ?x ?y))"
   "( <= ( goal player 100 ) inorder ( true ( step 30 ) ) )"
 
+  #";;;;;;;;; Hallo (role x)\n"
+
   
    
 ]
@@ -52,13 +54,13 @@ describe 'commands', () ->
       pt = parser.parse('( INFO )');
       pt.should.equal true
       cmd = commands.construct(parser.yy.program[0])
-      console.log parser.yy.program
-      console.log cmd.toString()
-      console.log cmd.execute
-        info : ()->
-          return x = 
-            status : 'available'
-            name : 'node_player'
+      #console.log parser.yy.program
+      #console.log cmd.toString()
+      #console.log cmd.execute
+      #  info : ()->
+      #    return x = 
+      #      status : 'available'
+      #      name : 'node_player'
 
 
     

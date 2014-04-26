@@ -18,10 +18,6 @@ app.use (req, res, next) ->
 
 #app.use bodyParser()
 
-#app.use (req, res, next) ->
-#  console.log(req.raw_body)
-#  next()
-
 #app.get '/',(req, res) ->  
 #
 #  res.send('<form method="post"><input type="submit" value="Submit"><input type="text" name="Something"/></form>')
@@ -35,9 +31,6 @@ app.post '/',(req, res) ->
   parser.parse(req.raw_body)
   cmd = commands.construct(parser.yy.program[0])
   ret_val = cmd.execute player
-
-  console.log ret_val
-
   res.send ret_val
 
 app.listen(8000)

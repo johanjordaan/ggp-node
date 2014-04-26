@@ -57,26 +57,30 @@ construct = (statement) ->
   if !statement._type?
     throw "Not a statement"
 
-  if !statement._type instanceof grammar_classes.Relation
+  if !(statement instanceof grammar_classes.RelationTerm)
     throw "Not a relation.Commands need to be ralations"
 
-  #n = 'x'
-  #z =
-  #  n : InfoCommand
 
+  cmd_terms = statement.relation.terms 
 
   commands = {
-    'info' : InfoCommand
-    'start' : StartCommand
-    'play' : PlayCommand
-    'stop' : StopCommand
-    'abort' : AbortCommand
+    'info' : () -> 
+      new InfoCommand()
+    'start' : () ->
+      new StartCommand(cmd_terms[1],cmd_terms[2],cmd_terms[3],cmd_terms[4],cmd_terms[5])
+    'play' : () ->
+      new PlayCommand(cmd_terms[0],cmd_terms[1])
+    'stop' : () ->
+      new StopCommand(cmd_terms[0],cmd_terms[1])
+    'abort' : () ->
+      new AbortCommand(cmd_terms[0])
+
   }
 
-  cls =  commands[statement.name.name.toLowerCase()] 
+  factory =  commands[cmd_terms[0].name.toLowerCase()] 
 
-  if cls?
-    return new cls()
+  if factory?
+    return factory()
   else
     throw "Not a valid command"  
 
@@ -84,9 +88,6 @@ construct = (statement) ->
 
 module.exports = 
   construct : construct
-  #InfoCommand : InfoCommand
-  #StartCommand : StartCommand
-  #PlayCommand : PlayCommand
-  #StopCommand : StopCommand
+
 
 
