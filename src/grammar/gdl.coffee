@@ -5,8 +5,13 @@ gc = require('./grammar_classes')
 class GDLContext
   constructor : (definition) ->
     @roles = []
-    @constant_relations = []
-    @constant_relation_names = []
+    @inits = []
+    @bases = []
+
+    @ranges = { }
+
+    @relations = []
+
 
     if _.isArray(definition)
       for term in definition
@@ -27,18 +32,40 @@ class GDLContext
 
 
   handle_relation : (relation) ->  
-    if relation.is_named("role") and relation.has_signature([gc.ConstantTerm,gc.ConstantTerm])
-      @roles.push relation.terms[1].name
+    if not relation.is_part_of_rule()
+      if relation.is_constant()
+        # If the range does not exist yet then create it
+        #
+        if not _.has(@ranges,relation.terms[0].name)
+          @ranges[relation.terms[0].name] = []
+
+        # Set the values based on the 'rest' of the terms
+        #  
+        for index in _.range(1,relation.terms.length)
+          @ranges[relation.terms[0].name].push relation.terms[index].name
 
 
-    for term in relation.terms
-      @handle_term(term,relation)     
+      #if relation.is_named("role") and relation.has_signature([gc.ConstantTerm,gc.ConstantTerm])
+      #  @roles.push relation
+      #else if relation.is_named("init") and relation.has_signature([gc.ConstantTerm,gc.RelationTerm])
+      #  @inits.push relation.terms[1]
+      #else if relation.is_named("base")
+      #  @bases.push relation.terms[1]
+      #else
+      #  @relations.push relation 
+      #for term in relation.terms
+      #  @handle_term(term,relation)     
 
 
   handle_rule : (rule) ->  
     @handle_term(rule.head)
     for term in rule.body
       @handle_term(term)
+
+
+  toString : () ->
+    roles_str = _.map(@roles,(r)->r.toString()).join(',')
+    return roles_str
 
 
 

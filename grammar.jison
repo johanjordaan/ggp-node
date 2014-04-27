@@ -28,7 +28,8 @@
 %% /* language grammar */
 
 program 
-    : statements                            { yy.program = $1 }
+    : statements                            { yy.program = $1; }
+    |                                       { yy.program = []; }
     ;
 
 statements

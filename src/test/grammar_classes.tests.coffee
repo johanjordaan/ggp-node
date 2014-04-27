@@ -11,6 +11,8 @@ describe 'Relation', () ->
   other_term = new gc.VariableTerm("Variable")
   named_relation = new gc.Relation([name_term,other_term])
   anon_relation = new gc.Relation([named_relation])
+  constant_relation = new gc.Relation([name_term,new gc.ConstantTerm("1"),new gc.ConstantTerm("2")])
+
 
   describe '#is_named', () ->
     it 'should correctly detect if a relation is named', () ->
@@ -36,6 +38,31 @@ describe 'Relation', () ->
 
     it 'should return false if the types provided do not match the types of the terms', () ->
       named_relation.has_signature([gc.VariableTerm,gc.VariableTerm]).should.equal false
+
+  describe '#set_rule', () ->
+    rule = new gc.Rule(new gc.ConstantTerm('head'),[new gc.ConstantTerm('body_1')])
+    it 'should set the rule property of a relation to the rule specified.', () ->
+      expect(named_relation.rule).to.be.null
+      named_relation.set_rule rule
+      named_relation.rule.should.not.equal null
+
+  describe "#is_constant", () ->
+    it 'should return false if any of the terms in a relation is not constant', () ->
+      named_relation.is_constant().should.equal false
+      anon_relation.is_constant().should.equal false
+
+    it 'should return rue if all the terms of the relation is constant', () ->
+      constant_relation.is_constant().should.equal true
+
+
+
+
+
+
+
+
+
+
 
 
   

@@ -73,11 +73,22 @@ class Relation
   # Sets the rule to which this relation belongs
   #
   set_rule : (@rule) ->
-    #for term in @terms
-    #  if term instanceof RelationTerm
-    #    console.log '----',term
-    #    term.relation.set_rule(@rule) 
+    for term in @terms
+      if term instanceof RelationTerm
+        term.relation.set_rule(@rule) 
 
+  # Returns true of the relation is part of a rule
+  #      
+  is_part_of_rule : () ->
+    return @rule != null
+
+  # Returns true if all the terms in the relation is constant
+  #
+  is_constant : () ->
+    for term in @terms
+      if term not instanceof ConstantTerm
+        return false
+    return true 
 
   toString : () ->
     if @terms.length >0
@@ -99,7 +110,7 @@ class Rule
     else
       @head = head  
 
-    # Rewrite all the terms to be relations
+    # Rewrite all the terms to be relations if they are constants
     #  
     @body = []  
     for term in body
