@@ -65,6 +65,8 @@ describe 'Relation', () ->
       constant_relation.get_hash().should.equal "Named12"
     it 'should return the hash of the relation : Named1Named', () ->
       constant_relation_with_relation.get_hash().should.equal "Named1Named"
+    it 'should return the hash of the relation : Named?', () ->
+      named_relation.get_hash().should.equal "Named?"
     it 'should calculate the hash lazily', () ->
       constant_relation_with_relation.set_hash("xxx")
       constant_relation_with_relation.get_hash().should.equal "xxx"
