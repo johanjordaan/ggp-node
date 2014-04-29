@@ -12,6 +12,8 @@ describe 'Relation', () ->
   named_relation = new gc.Relation([name_term,other_term])
   anon_relation = new gc.Relation([named_relation])
   constant_relation = new gc.Relation([name_term,new gc.ConstantTerm("1"),new gc.ConstantTerm("2")])
+  constant_relation_with_1_term = new gc.Relation([name_term])
+  constant_relation_with_relation = new gc.Relation([name_term,new gc.ConstantTerm("1"),new gc.RelationTerm(constant_relation_with_1_term)])
 
 
   describe '#is_named', () ->
@@ -21,7 +23,7 @@ describe 'Relation', () ->
       named_relation.is_named("Named").should.equal true
       named_relation.is_named("XXX").should.equal false
 
-  describe '#name', () ->
+  describe '#get_name', () ->
     it 'should return the name of a named relation', () ->
        named_relation.get_name().should.equal "Named"   
     it 'should throw an execption if the name of a non named relation is expected', () ->
@@ -51,8 +53,23 @@ describe 'Relation', () ->
       named_relation.is_constant().should.equal false
       anon_relation.is_constant().should.equal false
 
-    it 'should return rue if all the terms of the relation is constant', () ->
+    it 'should return true if all the terms of the relation is constant', () ->
+      constant_relation_with_1_term.is_constant().should.equal true
       constant_relation.is_constant().should.equal true
+
+    it 'should return true if all the terms and the relations(recursively) are constant',() ->
+      constant_relation_with_relation.is_constant().should.equal true  
+
+  describe "#get_hash", () ->
+    it 'should return the hash of the relation : Named12', () ->
+      constant_relation.get_hash().should.equal "Named12"
+    it 'should return the hash of the relation : Named1Named', () ->
+      constant_relation_with_relation.get_hash().should.equal "Named1Named"
+    it 'should calculate the hash lazily', () ->
+      constant_relation_with_relation.set_hash("xxx")
+      constant_relation_with_relation.get_hash().should.equal "xxx"
+
+      
 
 
 

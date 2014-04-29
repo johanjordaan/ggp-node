@@ -1,4 +1,0 @@
-(role x)
-(init (cell 1 b))
-(init (cell 2 b))
-(init (cell 3 b))

@@ -1,0 +1,5 @@
+(role x)
+(role y)
+(index 1)(index 2)(index 3)
+(succ 1 2)
+(succ 2 3)

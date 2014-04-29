@@ -71,6 +71,6 @@ term
     | rule                                  { $$ = new yy.RuleTerm($1);}
     | CONSTANT                              { $$ = new yy.ConstantTerm($1); }
     | VARIABLE                              { $$ = new yy.VariableTerm($1); }
-    | INTEGER                               { $$ = new yy.ConstantTerm($1); }
+    | INTEGER                               { $$ = new yy.ConstantTerm(Number($1)); }
     ;
 

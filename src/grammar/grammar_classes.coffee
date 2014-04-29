@@ -4,6 +4,9 @@ class ConstantTerm
   constructor : (@name) ->
     @_type = "ConstantTerm"
 
+  get_hash : () ->
+    return "#{@name}"
+
   toString : () ->
     return "#{@name}"
 
@@ -12,6 +15,9 @@ class VariableTerm
     @name = @name.replace("?","")
     @_type = "VariableTerm"
 
+  get_hash : () ->
+    return "?"
+
   toString : () ->
     return "?#{@name}"
 
@@ -19,12 +25,18 @@ class RelationTerm
   constructor : (@relation) ->
     @_type = "RelationTerm"
 
+  get_hash : () ->
+    return @relation.get_hash()
+
   toString : () ->
     return @relation.toString()
 
 class RuleTerm 
   constructor : (@rule) ->
     @_type = "RuleTerm"
+
+  get_hash : () ->
+    return @rule.get_hash()
 
   toString : () ->
     return @rule.toString()
@@ -34,6 +46,7 @@ class Relation
     # If the relation is part of a rule then this tells us which rule
     #
     @rule = null
+    @hash = null
 
   # If the first term in a relation is a constant term then the relation is considered
   # named.
@@ -82,13 +95,49 @@ class Relation
   is_part_of_rule : () ->
     return @rule != null
 
-  # Returns true if all the terms in the relation is constant
-  #
+  # Returns true if all the terms in the relation is constant and any terms that are relations
+  # are also constants
+  # TODO : This is constant and can be done in the constructor. Refcator later.
   is_constant : () ->
     for term in @terms
-      if term not instanceof ConstantTerm
+      if term instanceof RelationTerm
+        if not term.relation.is_constant()
+          return false
+      else if term instanceof ConstantTerm
+      else 
+        # Any terms other than Constant or Relation will prompt a false
         return false
+
     return true 
+ 
+  set_hash : (@hash) ->    
+
+  # Get the unique? hash for this relation
+  #
+  get_hash : () ->
+    if @hash? 
+      return @hash
+    
+    if @terms.length >0
+      terms_str = []
+      for term in @terms
+        terms_str.push(term.get_hash())
+      @set_hash "#{terms_str.join('')}"
+    else
+      @set_hash = ""
+
+    return @hash 
+
+  # Return true if it can be calculated. Any embedded relations are also evaluated with the same ranges?
+  # The rules is roughly outlined below
+  #    (cell 1 1) eval with input (cel 1 2)    
+  #    (next x (move ?x ?y))
+  evaluate : (input,ranges,functions) ->
+
+
+
+
+
 
   toString : () ->
     if @terms.length >0
@@ -124,6 +173,24 @@ class Rule
     @head.relation.set_rule(@)
     for term in @body 
       term.relation.set_rule(@)
+
+
+  # Evaluate this rule based on the input values
+  # values : array of values to use for the variable terms
+  # ranges : ranges of cerain variables defined as constants 
+  #
+  evaluate : (values,ranges) -> 
+    variables = {}
+    value_index = 0
+    # This needs to be recursive to handle embedded relations
+    for index in _.range(1,@head.terms.length)
+      if @head.terms[index] instanceof VariableTerm
+        variables[@head.terms[index].name] = values[value_index]
+        value_index += 1   
+
+    for term in @terms
+      term.evaluate(variables,ranges)    
+
 
 
   toString : () ->
