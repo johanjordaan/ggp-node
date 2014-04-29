@@ -1,6 +1,8 @@
 should = require('chai').should()
 expect = require('chai').expect
 
+parser = require('../grammar/grammar_parser').parser;
+parser.yy = require('../grammar/grammar_classes') 
 
 fs = require('fs')
 
@@ -71,8 +73,38 @@ describe 'Relation', () ->
       constant_relation_with_relation.set_hash("xxx")
       constant_relation_with_relation.get_hash().should.equal "xxx"
 
+
+  describe "#clone", () ->
+    it 'should create a clone of a relation recursively', () ->
+      ok = parser.parse("(cell 1 (valid 2))");
+      ok.should.equal true    
+      orig = parser.yy.program[0]
+      clone = orig.clone()
+      clone.get_hash().should.equal orig.get_hash()
+      clone.relation.set_hash('xxx')
+      clone.get_hash().should.not.equal orig.get_hash()
       
 
+  describe "#expand", () ->
+    ranges = 
+      succ : [ [1, 2], [2 , 3] ]
+
+    it 'should expand the constant relation to : [ (cell 1 2) ]', () ->
+      ok = parser.parse("(cell 1 2)");
+      ok.should.equal true    
+      term_zero = parser.yy.program[0]
+      domain = term_zero.expand() 
+      domain.length.should.equal 1
+      domain[0].get_hash().should.equal term_zero.get_hash()
+
+
+
+###
+     it 'should expand the constant relation to : [ (succ 1 2) ]', () ->
+      ok = parser.parse("(succ ?x 2)");
+      ok.should.equal true    
+      parser.yy.program.expand(ranges).length.should.equal 1
+###
 
 
 

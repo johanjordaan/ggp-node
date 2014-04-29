@@ -7,6 +7,9 @@ class ConstantTerm
   get_hash : () ->
     return "#{@name}"
 
+  clone : () ->
+    return new ConstantTerm(@name)
+
   toString : () ->
     return "#{@name}"
 
@@ -18,6 +21,9 @@ class VariableTerm
   get_hash : () ->
     return "?"
 
+  clone : () ->
+    return new VariableTerm(@name)
+
   toString : () ->
     return "?#{@name}"
 
@@ -27,6 +33,12 @@ class RelationTerm
 
   get_hash : () ->
     return @relation.get_hash()
+
+  expand : (ranges) ->
+    return @relation.expand(ranges)
+
+  clone : () ->
+    return new RelationTerm(@relation.clone())
 
   toString : () ->
     return @relation.toString()
@@ -127,6 +139,25 @@ class Relation
       @set_hash = ""
 
     return @hash 
+
+  # Return the expanded version of this relation given the ranges
+  #
+  expand : (ranges) ->
+    if @is_constant()
+      return [@clone()]
+
+      
+
+
+     
+  # Deep clone a relation 
+  #
+  clone : () ->
+    cloned_terms = []
+    for term in @terms
+      cloned_terms.push(term.clone())
+    return new Relation(cloned_terms) 
+
 
   # Return true if it can be calculated. Any embedded relations are also evaluated with the same ranges?
   # The rules is roughly outlined below
