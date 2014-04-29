@@ -86,10 +86,7 @@ describe 'Relation', () ->
       
 
   describe "#expand", () ->
-    ranges = 
-      succ : [ [1, 2], [2 , 3] ]
-
-    it 'should expand the constant relation to : [ (cell 1 2) ]', () ->
+    it 'should expand constant relation to : [ (cell 1 2) ]', () ->
       ok = parser.parse("(cell 1 2)");
       ok.should.equal true    
       term_zero = parser.yy.program[0]
@@ -98,13 +95,37 @@ describe 'Relation', () ->
       domain[0].get_hash().should.equal term_zero.get_hash()
 
 
+    describe 'should expand relations with variable', () -> 
+      it 'should expend to : [(succ 1 2)]', () ->  
+        ok = parser.parse("(succ 1 2)(succ 2 3)(succ ?x 2)");
+        ok.should.equal true    
+        term_zero = parser.yy.program[2]
+        domain = term_zero.expand({succ:[parser.yy.program[0],parser.yy.program[1]]}) 
+        domain.length.should.equal 1
 
-###
-     it 'should expand the constant relation to : [ (succ 1 2) ]', () ->
-      ok = parser.parse("(succ ?x 2)");
-      ok.should.equal true    
-      parser.yy.program.expand(ranges).length.should.equal 1
-###
+      it 'should expend to : [(succ 1 2)(succ 2 3)]', () ->  
+        ok = parser.parse("(succ 1 2)(succ 2 3)(succ ?x ?y)");
+        ok.should.equal true    
+        term_zero = parser.yy.program[2]
+        domain = term_zero.expand({succ:[parser.yy.program[0],parser.yy.program[1]]}) 
+        domain.length.should.equal 2
+
+      it 'should expend to : [(cell (index 1)) (cell (index 2))]', () ->  
+        ok = parser.parse("(cell (index 1)) (cell (index 2)) (cell (index ?x))");
+        ok.should.equal true    
+        term_zero = parser.yy.program[2]
+
+        domain = term_zero.expand({cell:[parser.yy.program[0],parser.yy.program[1]]}) 
+        domain.length.should.equal 2
+
+      it 'should expend to : [(cell (index 1)) (cell (index 2))]', () ->  
+        ok = parser.parse("(cell (index 1)) (cell (index 2)) (cell ?x)");
+        ok.should.equal true    
+        term_zero = parser.yy.program[2]
+
+        domain = term_zero.expand({cell:[parser.yy.program[0],parser.yy.program[1]]}) 
+        domain.length.should.equal 2
+
 
 
 

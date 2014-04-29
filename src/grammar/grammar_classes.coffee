@@ -40,6 +40,9 @@ class RelationTerm
   clone : () ->
     return new RelationTerm(@relation.clone())
 
+  produces : (target) ->
+    return @relation.produces(target)
+
   toString : () ->
     return @relation.toString()
 
@@ -62,7 +65,7 @@ class Relation
 
   # If the first term in a relation is a constant term then the relation is considered
   # named.
-  #      
+  # TODO : This is constant so should be done lazily      
   is_named : (name) ->
     if @terms[0] instanceof ConstantTerm 
       if name?
@@ -143,13 +146,28 @@ class Relation
   # Return the expanded version of this relation given the ranges
   #
   expand : (ranges) ->
+    # Constant relations expand to themselves (clone)
+    #
     if @is_constant()
       return [@clone()]
 
-      
+    # ------ Experimental  
+    # Get the name and range of the relation
+    #
+    name = @get_name()
+    if not _.has(ranges,name)
+      return []
+    range = ranges[name]  
 
-
+    # 
+    #  TODO : What about relation terms
+    domain  = []
+    for range_relation in range
+      if @produces(range_relation)
+        domain.push(range_relation.clone())
      
+    return domain        
+
   # Deep clone a relation 
   #
   clone : () ->
@@ -157,6 +175,35 @@ class Relation
     for term in @terms
       cloned_terms.push(term.clone())
     return new Relation(cloned_terms) 
+
+
+  # Returns true if this relation can produce the target
+  # (succ ?x ?y) produces to any relations (succ 1 2) (succ 2 3)
+  # (succ 1 2) only produces to (succ 1 2)
+  # (succ ?x 2) only produces to (succ 1 2) (succ 2 2) 
+  # (succ ?x (index 2)) will produces to any value of x given index conforming to 2 ???
+  # Target is a relation and it should have only constant terms?
+  #
+  produces : (target) ->
+    if target.relation.terms.length != @terms.length
+      return false
+
+    # TODO : This rule might change?  
+    if not target.relation.is_constant()   
+      return false
+
+    for index in _.range(@terms.length)
+      if @terms[index] instanceof ConstantTerm
+        if @terms[index].name != target.relation.terms[index].name  
+          return false
+
+      if @terms[index] instanceof RelationTerm
+        if not @terms[index].relation.produces(target.relation.terms[index])
+          return false
+                
+    return true      
+
+
 
 
   # Return true if it can be calculated. Any embedded relations are also evaluated with the same ranges?
