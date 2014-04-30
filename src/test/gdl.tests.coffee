@@ -1,3 +1,4 @@
+###
 should = require('chai').should()
 expect = require('chai').expect
 
@@ -5,10 +6,10 @@ _ = require('underscore')
 
 fs = require('fs')
 
-parser = require('../grammar/grammar_parser').parser;
-parser.yy = require('../grammar/grammar_classes') 
+gc = require('../grammar/grammar_classes') 
 
-GDLContext = require('../grammar/gdl').GDLContext
+Parser = require('../grammar/parser').Parser
+parser = new Parser()
 
 test = (filename,done,cb) ->
   it "should parse the definition of #{filename}", (done) ->
@@ -46,6 +47,9 @@ describe 'GDLContext', (done) ->
     #_.has(ctx.ranges,'succ').should.equal true
     #console.log ctx.ranges
     #ctx.ranges.index.length.should.equal 2
+###
+
+
 
 
 

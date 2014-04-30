@@ -2,34 +2,27 @@ _ = require("underscore")
 
 terms  = require('../grammar/terms')
 
-
 class Relation
   constructor : (@context,@terms) ->
-    # If the relation is part of a rule then this tells us which rule
-    #
-    @rule = null      # TODO : Is this still required
     @hash = null
-
-  # If the first term in a relation is a constant term then the relation is considered
-  # named.
-  # TODO : This is constant so should be done lazily      
-  is_named : (name) ->
-    if @terms[0] instanceof terms.ConstantTerm 
-      if name?
-        return @terms[0].name == name
-      else
-        return true
-    
-    return false 
+    @is_named_ind = null
+    @name = null
+    @is_constant_ind = null
   
   # If the relation is named then return its name; the value of the first term, if it is a 
-  # constant term. If the relation is not named then throw an exception
+  # constant term. If the relation is not named then return null
   #  
   get_name : () ->
-    if not @is_named()
-      throw "Cannot retreive the name of a non named relation."
+    if @is_named_ind?
+      return @name
 
-    return @terms[0].name  
+    if @terms[0] instanceof terms.ConstantTerm 
+      @is_named_ind = true
+      @name = @terms[0].name  
+      return @name
+    else
+      @is_named_ind = true
+      return @name
 
   # Check the terms of types against the provided list of termtypes
   #
@@ -45,32 +38,26 @@ class Relation
 
     return true
 
-  # Sets the rule to which this relation belongs
-  #
-  set_rule : (@rule) ->
-    for term in @terms
-      if term instanceof terms.RelationTerm
-        term.relation.set_rule(@rule) 
-
-  # Returns true of the relation is part of a rule
-  #      
-  is_part_of_rule : () ->
-    return @rule != null
-
   # Returns true if all the terms in the relation is constant and any terms that are relations
   # are also constants
-  # TODO : This is constant and can be done in the constructor. Refcator later.
+  #
   is_constant : () ->
+    if @is_constant_ind?
+      return @is_constant_ind
+
     for term in @terms
       if term instanceof terms.RelationTerm
         if not term.relation.is_constant()
-          return false
+          @is_constant_ind = false
+          return @is_constant_ind
       else if term instanceof terms.ConstantTerm
       else 
         # Any terms other than Constant or Relation will prompt a false
-        return false
+        @is_constant_ind = false
+        return @is_constant_ind
 
-    return true 
+    @is_constant_ind = true
+    return @is_constant_ind
  
   set_hash : (@hash) ->    
 
@@ -185,80 +172,5 @@ class Relation
     else
       return "()"
 
-class Rule
-  constructor : (@context,head,body) ->
-    @_type = "Rule"
-
-    # If the head term is a constant term then rewrite it to be a relation
-    #
-    if head instanceof terms.ConstantTerm
-      @head = new RelationTerm(new Relation([head]))
-    else
-      @head = head  
-
-    # Rewrite all the terms to be relations if they are constants
-    #  
-    @body = []  
-    for term in body
-      if term instanceof terms.ConstantTerm
-        @body.push new RelationTerm(new Relation([term]))
-      else
-        @body.push term
-
-    # Set the parent rule for all the relations
-    #
-    @head.relation.set_rule(@)
-    for term in @body 
-      term.relation.set_rule(@)
-
-
-  # Evaluate this rule based on the input values
-  # values : array of values to use for the variable terms
-  # ranges : ranges of cerain variables defined as constants 
-  #
-  evaluate : (values,ranges) -> 
-    variables = {}
-    value_index = 0
-    # This needs to be recursive to handle embedded relations
-    for index in _.range(1,@head.terms.length)
-      if @head.terms[index] instanceof terms.VariableTerm
-        variables[@head.terms[index].name] = values[value_index]
-        value_index += 1   
-
-    for term in @terms
-      term.evaluate(variables,ranges)    
-
-  expand : (ranges) ->
-    
-  # Extract the variables from the head and extract their range names as well based
-  # on the body terms
-  #    
-  get_variables : () ->
-    variables = {}
-
-    head_variables = @head.get_variables()
-    for variable in @head.get_variables()
-      variables[variable.name] = []
-
-    for term in @body
-      term_variables = term.get_variables()
-      for term_variable in term_variables
-        if(_.has(variables,term_variable.name))
-          variables[term_variable.name].push(term.relation.terms[0].name)
-
-
-    return variables
-
-
-
-  toString : () ->
-    body_terms_str = []
-    for body_term in @body
-      body_terms_str.push(body_term.toString())
-    return "(<= #{@head.toString()} #{body_terms_str.join(' ')})"
-
-
-module.exports = 
+module.exports =
   Relation : Relation
-  Rule : Rule
-

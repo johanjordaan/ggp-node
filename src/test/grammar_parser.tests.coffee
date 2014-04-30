@@ -1,8 +1,8 @@
+###
 should = require('chai').should()
 expect = require('chai').expect
 
-parser = require('../grammar/grammar_parser').parser;
-parser.yy = require('../grammar/grammar_classes') 
+parser = require('../grammar/parser')
 
 commands = require('../grammar/commands')
 
@@ -39,6 +39,8 @@ tests = [
    
 ]
 
+
+
 describe 'parse', () ->
   for test in tests
     x = (test) ->
@@ -62,6 +64,6 @@ describe 'commands', () ->
       #      status : 'available'
       #      name : 'node_player'
 
-
+###
     
   
