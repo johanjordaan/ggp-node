@@ -44,16 +44,14 @@ describe 'Relation', () ->
   describe "#is_constant", () ->
     
     it_should 'return false if any of the terms in a relation is not constant', '(cell ?x)((cell ?x) x)', (context) ->
-      console.log context
       context.lookup_relation_by_hash('cell?').is_constant().should.equal false
       context.lookup_relation_by_hash('cell?x').is_constant().should.equal false
 
-    #it_should 'should return true if all the terms of the relation is constant', () ->
-    #  constant_relation_with_1_term.is_constant().should.equal true
-    #  constant_relation.is_constant().should.equal true
+    it_should 'should return true if all the terms of the relation is constant','(cell 1)(cell (cell x))' , (context) ->
+      context.lookup_relation_by_hash('cell1').is_constant().should.equal true
+      context.lookup_relation_by_hash('cellx').is_constant().should.equal true
+      context.lookup_relation_by_hash('cellcellx').is_constant().should.equal true
 
-    #it 'should return true if all the terms and the relations(recursively) are constant',() ->
-    #  constant_relation_with_relation.is_constant().should.equal true  
 
 
   #describe "#clone", () ->

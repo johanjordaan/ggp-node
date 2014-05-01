@@ -13,8 +13,7 @@ class Context
   #
   create_relation : (terms) ->
     new_relation = new Relation(@,terms)
-    console.log new_relation
-    existing_relation = @relation_hash_lookup[new_relation.get_hash()]
+    existing_relation = @lookup_relation_by_hash(new_relation.get_hash())
     if existing_relation?
       return existing_relation
 

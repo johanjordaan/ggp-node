@@ -58,8 +58,6 @@ class Relation
 
     @is_constant_ind = true
     return @is_constant_ind
- 
-  set_hash : (@hash) ->    
 
   # Get the unique? hash for this relation
   #
@@ -71,9 +69,9 @@ class Relation
       terms_str = []
       for term in @terms
         terms_str.push(term.get_hash())
-      @set_hash "#{terms_str.join('')}"
+      @hash = "#{terms_str.join('')}"
     else
-      @set_hash = ""
+      @hash = ""
 
     return @hash 
 
