@@ -17,7 +17,7 @@ class VariableTerm
     @name = @name.replace("?","")
 
   get_hash : () ->
-    return "?"
+    return "?#{@name}"
 
   clone : () ->
     return new VariableTerm(@name)

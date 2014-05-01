@@ -69,9 +69,9 @@ class Relation
       terms_str = []
       for term in @terms
         terms_str.push(term.get_hash())
-      @hash = "#{terms_str.join('')}"
+      @hash = "(#{terms_str.join(' ')})"
     else
-      @hash = ""
+      @hash = "()"
 
     return @hash 
 
