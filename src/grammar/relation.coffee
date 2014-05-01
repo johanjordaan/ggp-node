@@ -2,8 +2,13 @@ _ = require("underscore")
 
 terms  = require('../grammar/terms')
 
+
+# Some 'rules' : Relations no nothing about its context or its relationship with other relations
+# this is the job of the context.
+# Relation can tell you about their own internals.
+#
 class Relation
-  constructor : (@context,@terms) ->
+  constructor : (@terms) ->
     @hash = null
     @is_named_ind = null
     @name = null
@@ -100,37 +105,28 @@ class Relation
      
     return domain        
 
-  # Deep clone a relation 
-  # TODO : What about the other fields like rule etc ?
-  clone : () ->
-    cloned_terms = []
-    for term in @terms
-      cloned_terms.push(term.clone())
-    return new Relation(null,cloned_terms) 
-
-
   # Returns true if this relation can produce the target
   # (succ ?x ?y) produces to any relations (succ 1 2) (succ 2 3)
   # (succ 1 2) only produces to (succ 1 2)
   # (succ ?x 2) only produces to (succ 1 2) (succ 2 2) 
   # (succ ?x (index 2)) will produces to any value of x given index conforming to 2 ???
   # Target is a relation and it should have only constant terms?
-  #
+  #  Target is NOT a TERM
   produces : (target) ->
-    if target.relation.terms.length != @terms.length
+    if target.terms.length != @terms.length
       return false
 
     # TODO : This rule might change?  
-    if not target.relation.is_constant()   
+    if not target.is_constant()   
       return false
 
     for index in _.range(@terms.length)
       if @terms[index] instanceof terms.ConstantTerm
-        if @terms[index].name != target.relation.terms[index].name  
+        if @terms[index].name != target.terms[index].name  
           return false
 
       if @terms[index] instanceof terms.RelationTerm
-        if not @terms[index].relation.produces(target.relation.terms[index])
+        if not @terms[index].produces(target.terms[index])
           return false
                 
     return true      

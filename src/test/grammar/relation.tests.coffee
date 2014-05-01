@@ -52,9 +52,6 @@ describe 'Relation', () ->
       context.lookup_relation_by_hash('(cell x)').is_constant().should.equal true
       context.lookup_relation_by_hash('(cell (cell x))').is_constant().should.equal true
 
-
-
-
   describe "#get_hash", () ->
     
     it_should 'should return the hash of the relation', '(Named 1 2)(Named 1 (Named))(Named ?x)', (context) ->
@@ -62,137 +59,9 @@ describe 'Relation', () ->
       context.lookup_relation_by_hash('(Named 1 (Named))').get_hash().should.equal '(Named 1 (Named))'
       context.lookup_relation_by_hash('(Named ?x)').get_hash().should.equal '(Named ?x)'
    
-   it_should 'should calculate the hash lazily', '(Named 1 2)', (context) ->
-      context.lookup_relation_by_hash('(Named 1 2)').hash =  'xxx'
-      context.lookup_relation_by_hash('(Named 1 2)').get_hash().should.equal 'xxx'
-
-
-  #describe "#clone", () ->
-  #  it_should ''
-#
-#    it 'should create a clone of a relation recursively', () ->
-#      context = parser.parse("(cell 1 (valid 2))");
-#      orig = context.relations[1]
-#      clone = orig.clone()
-#      clone.get_hash().should.equal orig.get_hash()
-#      clone.set_hash('xxx')
-#      clone.get_hash().should.not.equal orig.get_hash()
-
-
-
-###
-describe 'Relation', () ->
-
-  name_term = new gc.ConstantTerm("Named")
-  other_term = new gc.VariableTerm("Variable")
-  named_relation = new gc.Relation([name_term,other_term])
-  anon_relation = new gc.Relation([named_relation])
-  constant_relation = new gc.Relation([name_term,new gc.ConstantTerm("1"),new gc.ConstantTerm("2")])
-  constant_relation_with_1_term = new gc.Relation([name_term])
-  constant_relation_with_relation = new gc.Relation([name_term,new gc.ConstantTerm("1"),new gc.RelationTerm(constant_relation_with_1_term)])
-
-
-###
-###
-describe 'Relation', () ->
-  describe "#clone", () ->
-    it 'should create a clone of a relation recursively', () ->
-      context = parser.parse("(cell 1 (valid 2))");
-      orig = context.relations[1]
-      clone = orig.clone()
-      clone.get_hash().should.equal orig.get_hash()
-      clone.set_hash('xxx')
-      clone.get_hash().should.not.equal orig.get_hash()
-      
-
-  describe "#expand", () ->
-    it 'should expand constant relation to : [ (cell 1 2) ]', () ->
-      ok = parser.parse("(cell 1 2)");
-      ok.should.equal true    
-      term_zero = parser.yy.program[0]
-      domain = term_zero.expand() 
-      domain.length.should.equal 1
-      domain[0].get_hash().should.equal term_zero.get_hash()
-
-
-    describe 'should expand relations with variable', () -> 
-      it 'should expend to : [(succ 1 2)]', () ->  
-        ok = parser.parse("(succ 1 2)(succ 2 3)(succ ?x 2)");
-        ok.should.equal true    
-        term_zero = parser.yy.program[2]
-        domain = term_zero.expand({succ:[parser.yy.program[0],parser.yy.program[1]]}) 
-        domain.length.should.equal 1
-
-      it 'should expend to : [(succ 1 2)(succ 2 3)]', () ->  
-        ok = parser.parse("(succ 1 2)(succ 2 3)(succ ?x ?y)");
-        ok.should.equal true    
-        term_zero = parser.yy.program[2]
-        domain = term_zero.expand({succ:[parser.yy.program[0],parser.yy.program[1]]}) 
-        domain.length.should.equal 2
-
-      it 'should expend to : [(cell (index 1)) (cell (index 2))]', () ->  
-        ok = parser.parse("(cell (index 1)) (cell (index 2)) (cell (index ?x))");
-        ok.should.equal true    
-        term_zero = parser.yy.program[2]
-
-        domain = term_zero.expand({cell:[parser.yy.program[0],parser.yy.program[1]]}) 
-        domain.length.should.equal 2
-
-      it 'should expend to : [(cell (index 1)) (cell (index 2))]', () ->  
-        ok = parser.parse("(cell (index 1)) (cell (index 2)) (cell ?x)");
-        ok.should.equal true    
-        term_zero = parser.yy.program[2]
-
-        domain = term_zero.expand({cell:[parser.yy.program[0],parser.yy.program[1]]}) 
-        domain.length.should.equal 2
-
-
-  describe "#get_variables", () ->
-    it 'should extract all the variables in the relation', () ->
-      ok = parser.parse("(base (cell ?x ?y b) ?z)")
-      ok.should.equal true
-
-      relation = parser.yy.program[0]
-      variables = relation.get_variables()
-      variables.length.should.equal 3
-      (variables[0] instanceof gc.VariableTerm).should.equal true
-      variables[0].name.should.equal "x"
-      (variables[1] instanceof gc.VariableTerm).should.equal true
-      variables[1].name.should.equal "y"
-      (variables[2] instanceof gc.VariableTerm).should.equal true
-      variables[2].name.should.equal "z"
-
-
-describe 'Rule', () ->
-  describe '#get_variables', () ->
-    it 'should extract the variables from the rule head',() ->
-      ok = parser.parse("(<= (base (cell ?x ?y b)) (index ?x) (index ?y))")
-      ok.should.equal true
-
-      rule = parser.yy.program[0]
-      
-      variables = rule.get_variables()
-      #variables.length.should.equal 2
-      console.log variables
-      #variables.x.length.should.equal 1
-      #variables.x[0].should.equal "index"
-      #variables.y.length.should.equal 1
-      #variables.y[0].should.equal "index"
-
-
-
-  describe '#expand', () ->
-    it 'should expand the rule',() ->
-      ok = parser.parse("(index 1) (index 2) (index 3) (<= (base (cell ?x ?y b)) (index ?x) (index ?y))")
-      ok.should.equal true
-
-      rule = parser.yy.program[3]
-      ranges = { index : [parser.yy.program[0], parser.yy.program[1], parser.yy.program[2]] }
-
-      domain = rule.expand(ranges)
-      #console.log rule.toString()
-###
-
+   it_should 'should calculate the hash lazily', '(Named 1)(Named ?x)(Named 2)', (context) ->
+      context.lookup_relation_by_hash('(Named 1)').hash =  'xxx'
+      context.lookup_relation_by_hash('(Named 1)').get_hash().should.equal 'xxx'
 
 
 

@@ -2,23 +2,67 @@ _ = require("underscore")
 
 Relation = require('./relation').Relation
 
+
+# TODO : 
+# 1) Instead of using lists and splice etc to maintan lists impliment a linked list scheme
+#    should be much faster and memory efficient ?
+# 2) Mark unsatisfied variable relations
+# 3) Mark relations where there is a discrepancy? Is this required?
+# 4) Impliment safety checks on rules?
+
 class Context 
   constructor : () ->
     @relations = []
-    @rules = []
-    @relation_hash_lookup = {}    # Contains a hash and a index into relations
+    @relation_hash_lookup = {}    # Contains a hash and a index into relations, eg { '(cell x)' : 0 }
+    @constant_relations = []      # All relations that are constants array contains indexes into @relations
+    @variable_relations = []      # All relations that are variable array contains indexes into @relations
+    @productions = {}             # { <variable_relation_index> : [<constant_relation_index>,...] }
 
+
+
+    #@rules = []
+    #@relation_hash_expansion = {} # Contains a hash and a array of expansions, eg { '(cell ?x)' : [0,1] }
+    #@trancient_relations = []     # These relations will be killed on the next 'step'
+    #@next_relations = []          # These relations will be moved  to transient after after the next step
 
   # If the relation already exists then discard it and return the existing one
   #
   create_relation : (terms) ->
-    new_relation = new Relation(@,terms)
+    # Create the relation based on the terms
+    # If it exists then discard it and return the existing one
+    #
+    new_relation = new Relation(terms)
     existing_relation = @lookup_relation_by_hash(new_relation.get_hash())
     if existing_relation?
       return existing_relation
 
+    # Add the relation to main list and lookup
+    #
+    new_relation_index = @relations.length  
     @relations.push(new_relation)
-    @relation_hash_lookup[new_relation.get_hash()] = @relations.length-1
+    @relation_hash_lookup[new_relation.get_hash()] = new_relation_index
+    
+    # If it is a constant relation then add it to the constant list
+    #
+    if new_relation.is_constant()
+      @constant_relations.push(new_relation_index)
+      # Ask each variable relation if it produces the new relation
+      #
+      for index in @variable_relations
+        variable_relation = @relations[index]
+        if variable_relation.produces(new_relation)  
+          @productions[index].push(new_relation_index)
+    else
+      @variable_relations.push(new_relation_index)
+      @productions[new_relation_index] = []
+      # Ask this relation if it procides any of the constant relations
+      #
+      for index in @constant_relations
+        constant_relation = @relations[index]
+        if new_relation.produces(constant_relation)
+          @productions[new_relation_index].push(index)
+
+
     return new_relation
 
   # Returns the relation or null if it cannot be found
@@ -30,9 +74,25 @@ class Context
 
     return null 
 
+
+  # Expands all the relations to the constants 
+  #
+  expand : () ->
+    for relation in relations 
+      if relation.is_constant() 
+      else
+        # lookup all constant relations with the same name 
+        # each one that can be produced by the relation is added to this relations 
+        # list
+
+  #step : () ->
+  #  for transient_relation in @transient_relations
+
+
+
   # TODO : No test yet...  
   create_rule : (head,body) ->
-    new_rule = new Rule(@,head,body)
+    new_rule = new Rule(head,body)
     @rules.push(new_rule)
     return new_rule
 
