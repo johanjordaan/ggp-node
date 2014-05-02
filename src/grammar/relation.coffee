@@ -80,31 +80,6 @@ class Relation
 
     return @hash 
 
-  # Return the expanded version of this relation given the ranges
-  #
-  expand : (ranges) ->
-    # Constant relations expand to themselves (clone)
-    #
-    if @is_constant()
-      return [@clone()]
-
-    # ------ Experimental  
-    # Get the name and range of the relation
-    #
-    name = @get_name()
-    if not _.has(ranges,name)
-      return []
-    range = ranges[name]  
-
-    # 
-    #  TODO : What about relation terms
-    domain  = []
-    for range_relation in range
-      if @produces(range_relation)
-        domain.push(range_relation.clone())
-     
-    return domain        
-
   # Returns true if this relation can produce the target
   # (succ ?x ?y) produces to any relations (succ 1 2) (succ 2 3)
   # (succ 1 2) only produces to (succ 1 2)
@@ -130,9 +105,6 @@ class Relation
           return false
                 
     return true      
-
-
-
 
   # Return true if it can be calculated. Any embedded relations are also evaluated with the same ranges?
   # The rules is roughly outlined below
