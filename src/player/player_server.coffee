@@ -1,8 +1,8 @@
 #http = require('http')
 express = require('express')
 #bodyParser = require('body-parser')
-parser = require('../grammar/grammar_parser').parser
-parser.yy = require('../grammar/grammar_classes')
+
+parser = require('../grammar/parser')
 commands = require('../grammar/commands')
 
 app = express()
@@ -28,8 +28,8 @@ player = new Player()
 
 app.post '/',(req, res) ->
   console.log req.raw_body
-  parser.parse(req.raw_body)
-  cmd = commands.construct(parser.yy.program[0])
+  context = parser.parse(req.raw_body)
+  cmd = commands.construct(context.relations[context.relations.length-1])
   ret_val = cmd.execute player
   res.send ret_val
 

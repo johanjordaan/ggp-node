@@ -88,6 +88,7 @@ class Relation
   # Target is a relation and it should have only constant terms?
   #  Target is NOT a TERM
   produces : (target) ->
+    #console.log '===>',@terms,'>>>',target
     if target.terms.length != @terms.length
       return false
 
@@ -101,7 +102,13 @@ class Relation
           return false
 
       if @terms[index] instanceof terms.RelationTerm
-        if not @terms[index].produces(target.terms[index])
+        if target.terms[index] instanceof terms.RelationTerm
+          if not @terms[index].relation.produces(target.terms[index].relation)
+            return false
+        else  
+          #console.log '===>',@terms,'>>>',target
+          #console.log 'xxxx> ',target.terms[index]
+          #if not @terms[index].relation.produces(target.terms[index])
           return false
                 
     return true      

@@ -1,4 +1,3 @@
-###
 should = require('chai').should()
 expect = require('chai').expect
 
@@ -6,22 +5,32 @@ _ = require('underscore')
 
 fs = require('fs')
 
-gc = require('../grammar/grammar_classes') 
-
-Parser = require('../grammar/parser').Parser
-parser = new Parser()
+parser = require('../grammar/parser')
 
 test = (filename,done,cb) ->
   it "should parse the definition of #{filename}", (done) ->
-    fs.readFile "./definitions/tests/#{filename}",'utf8', (err,data) ->
-      ok = parser.parse(data);
-      ok.should.equal true
-      root_relation = parser.yy.program
-      cb(new GDLContext(root_relation))
+    fs.readFile "./definitions/#{filename}",'utf8', (err,data) ->
+
+      context = parser.parse(data);
+      cb(context)
 
       done()
 
 
+describe 'GDLContext', (done) ->
+  test 'eight_puzzle.kif',done,(ctx) ->
+    console.log ctx.toString()
+
+describe 'GDLContext', (done) ->
+  test 'tic-tac-toe.kif',done,(ctx) ->
+    console.log ctx.toString()
+
+describe 'GDLContext', (done) ->
+  test 'three-player-tic-tac-chess.kif',done,(ctx) ->
+    console.log ctx.toString()
+
+
+###
 describe 'GDLContext', (done) ->
   test 'empty.kif',done,(ctx) ->
     console.log ctx.toString()

@@ -1,5 +1,4 @@
 _ = require('underscore')
-grammar_classes = require('./grammar_classes.js')
 
 class InfoCommand
   constructor : () ->
@@ -54,14 +53,7 @@ class AbortCommand
     return "(abort #{@match_id})"
 
 construct = (statement) ->
-  if !statement._type?
-    throw "Not a statement"
-
-  if !(statement instanceof grammar_classes.RelationTerm)
-    throw "Not a relation.Commands need to be ralations"
-
-
-  cmd_terms = statement.relation.terms 
+  cmd_terms = statement.terms 
 
   commands = {
     'info' : () -> 
