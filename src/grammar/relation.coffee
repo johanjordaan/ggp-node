@@ -6,9 +6,11 @@ terms  = require('../grammar/terms')
 # Some 'rules' : Relations no nothing about its context or its relationship with other relations
 # this is the job of the context.
 # Relation can tell you about their own internals.
+# The exception is the context_id whicg is an ID assigned by the context and kept in the
+# relation for quick access
 #
 class Relation
-  constructor : (@terms) ->
+  constructor : (@terms,@context_index) ->
     @hash = null
     @is_named_ind = null
     @name = null

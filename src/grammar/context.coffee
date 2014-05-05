@@ -21,6 +21,12 @@ class Context
     @dependants = {}              # { relation_index : [ [<relation index>],[] ] }
 
     @rules = []
+
+    @init_relations = []
+    @base_relations = []
+    @legal_relations = []
+
+
     #@relation_hash_expansion = {} # Contains a hash and a array of expansions, eg { '(cell ?x)' : [0,1] }
     #@trancient_relations = []     # These relations will be killed on the next 'step'
     #@next_relations = []          # These relations will be moved  to transient after after the next step
@@ -33,36 +39,43 @@ class Context
     if not _.isArray(rel_terms)
       throw 'Terms need to be an array of terms. Parser issue?'
 
-    if rel_terms[0] instanceof terms.ConstantTerm 
-      if rel_terms[0].name == 'init'
-        return rel_terms[1].relation 
-      if rel_terms[0].name == 'true'
-        return rel_terms[1].relation
-      if rel_terms[0].name == 'base'
-        return rel_terms[1].relation
-    
-
 
     # Create the relation based on the terms
     # If it exists then discard it and return the existing one
     #
-    new_relation = new Relation(rel_terms)
+    new_relation = new Relation(rel_terms,@relations.length)
     existing_relation = @lookup_relation_by_hash(new_relation.get_hash())
     if existing_relation?
       return existing_relation
 
 
+    # Do the special GDL processing
+    #  
+    if rel_terms[0] instanceof terms.ConstantTerm 
+      if rel_terms[0].name == 'init'
+        @init_relations.push(rel_terms[1].relation.context_index)
+        return rel_terms[1].relation 
+      if rel_terms[0].name == 'true'
+        return rel_terms[1].relation
+      if rel_terms[0].name == 'base'
+        @base_relations.push(rel_terms[1].relation.context_index)
+        return rel_terms[1].relation
+      if rel_terms[0].name == 'legal'
+        @legal_relations.push(rel_terms[2].relation.context_index)  
+
+
+
+
     # Add the relation to main list and lookup
     #
-    new_relation_index = @relations.length  
     @relations.push(new_relation)
-    @relation_hash_lookup[new_relation.get_hash()] = new_relation_index
+    @relation_hash_lookup[new_relation.get_hash()] = new_relation.context_index
     
-    #console.log '<><><>',new_relation_index,new_relation.toString(),new_relation.is_constant()
+    #console.log '<><><>',new_relation.context_index,new_relation.toString(),new_relation.is_constant()
     # If it is a constant relation then add it to the constant list
     #
     if new_relation.is_constant()
-      @constant_relations.push(new_relation_index)
+      @constant_relations.push(new_relation.context_index)
       # Ask each variable relation if it produces the new relation
       #
       #console.log '<><><>',_.keys(@variable_relations).length
@@ -72,10 +85,10 @@ class Context
         #if variable_relation not instanceof Relation
         #  console.log 'WTF : ',variable_relation
         if variable_relation.produces(new_relation)  
-          @productions[index].push(new_relation_index)
+          @productions[index].push(new_relation.context_index)
     else
-      @variable_relations.push(new_relation_index)
-      @productions[new_relation_index] = []
+      @variable_relations.push(new_relation.context_index)
+      @productions[new_relation.context_index] = []
       # Ask this relation if it procides any of the constant relations
       #
       for index in @constant_relations
@@ -84,8 +97,10 @@ class Context
         #if constant_relation not instanceof Relation
         #  console.log 'WTF : ',constant_relation
         if new_relation.produces(constant_relation)
-          @productions[new_relation_index].push(index)
+          @productions[new_relation.context_index].push(index)
   
+
+
 
 
     return new_relation
@@ -98,21 +113,6 @@ class Context
       return @relations[index]
 
     return null 
-
-
-  # Expands all the relations to the constants 
-  #
-  expand : () ->
-    for relation in relations 
-      if relation.is_constant() 
-      else
-        # lookup all constant relations with the same name 
-        # each one that can be produced by the relation is added to this relations 
-        # list
-
-  #step : () ->
-  #  for transient_relation in @transient_relations
-
 
 
   # TODO : No test yet...  
@@ -170,6 +170,9 @@ class Context
     ret_val += "Constant Relations : [#{@constant_relations.length}]\n"
     ret_val += "Variable Relations : [#{@variable_relations.length}]\n"
     ret_val += "Dependancy Chains  : [#{_.keys(@dependants).length}]\n"
+    ret_val += "Init Relations     : [#{@init_relations.length}]\n"
+    ret_val += "Base Relations     : [#{@base_relations.length}]\n"
+    ret_val += "Legal Relations    : [#{@legal_relations.length}]\n"
     if verbose? and verbose
       ret_val += "\n"
       for relation in @relations    
