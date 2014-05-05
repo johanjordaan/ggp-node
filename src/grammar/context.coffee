@@ -18,26 +18,35 @@ class Context
     @constant_relations = []      # All relations that are constants array contains indexes into @relations
     @variable_relations = []      # All relations that are variable array contains indexes into @relations
     @productions = {}             # { <variable_relation_index> : [<constant_relation_index>,...] }
+    @dependants = {}              # { relation_index : [ [<relation index>],[] ] }
 
     @rules = []
-
-
     #@relation_hash_expansion = {} # Contains a hash and a array of expansions, eg { '(cell ?x)' : [0,1] }
     #@trancient_relations = []     # These relations will be killed on the next 'step'
     #@next_relations = []          # These relations will be moved  to transient after after the next step
 
   # If the relation already exists then discard it and return the existing one
   #
-  create_relation : (terms) ->
+  create_relation : (rel_terms) ->
     #console.log '<><>',terms
 
-    if not _.isArray(terms)
+    if not _.isArray(rel_terms)
       throw 'Terms need to be an array of terms. Parser issue?'
+
+    if rel_terms[0] instanceof terms.ConstantTerm 
+      if rel_terms[0].name == 'init'
+        return rel_terms[1].relation 
+      if rel_terms[0].name == 'true'
+        return rel_terms[1].relation
+      if rel_terms[0].name == 'base'
+        return rel_terms[1].relation
+    
+
 
     # Create the relation based on the terms
     # If it exists then discard it and return the existing one
     #
-    new_relation = new Relation(terms)
+    new_relation = new Relation(rel_terms)
     existing_relation = @lookup_relation_by_hash(new_relation.get_hash())
     if existing_relation?
       return existing_relation
@@ -77,6 +86,7 @@ class Context
         if new_relation.produces(constant_relation)
           @productions[new_relation_index].push(index)
   
+
 
     return new_relation
 
@@ -128,22 +138,44 @@ class Context
         #console.log 'Pushing body term :',term.toString()
         new_body.push(term)
 
+    # Now build the array of dependants
+    #    
+    new_head_index = @relation_hash_lookup[new_head.get_hash()]   
 
+    if not _.has(@dependants,new_head_index)    
+      @dependants[new_head_index] = []
+    else
+      #console.log '--->',new_head.toString()
+      # TODO : This might be an error case ? Or do we just ad the dependnats ?
+      # If it has been found then just 
 
+    new_dependents = []  
+    for term in new_body
+      term_index = @relation_hash_lookup[term.get_hash()]
+      new_dependents.push(term_index)
+
+    @dependants[new_head_index].push new_dependents
+
+    # TODO : Not required ?, Dependancy chains's define rules fully?
+    # 
     @rules.push new_head    
 
     return new_head
-    #new_rule = new Rule(head,body)
-    #@rules.push(new_rule)
-    #return new_rule
     
 
-  toString : () ->
+  toString : (verbose) ->
     ret_val = "" 
     ret_val += "Relations          : [#{@relations.length}]\n"
     ret_val += "Rules              : [#{@rules.length}]\n"
     ret_val += "Constant Relations : [#{@constant_relations.length}]\n"
     ret_val += "Variable Relations : [#{@variable_relations.length}]\n"
+    ret_val += "Dependancy Chains  : [#{_.keys(@dependants).length}]\n"
+    if verbose? and verbose
+      ret_val += "\n"
+      for relation in @relations    
+        ret_val += "#{relation.toString()}\n" 
+    
+    return ret_val
 
 
 module.exports = 

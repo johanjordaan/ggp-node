@@ -14,8 +14,6 @@ class Player
     if @status != 'available'
       return @status
 
-    console.log '---->',game_definition.relation
-
     @current_match_id = match_id
     @status = 'busy'
 

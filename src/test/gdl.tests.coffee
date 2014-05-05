@@ -29,6 +29,9 @@ describe 'GDLContext', (done) ->
   test 'three-player-tic-tac-chess.kif',done,(ctx) ->
     console.log ctx.toString()
 
+describe 'GDLContext', (done) ->
+  test 'tests/legal_moves_0.kif',done,(ctx) ->
+    console.log ctx.toString(true)
 
 ###
 describe 'GDLContext', (done) ->

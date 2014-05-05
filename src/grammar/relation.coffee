@@ -113,12 +113,6 @@ class Relation
                 
     return true      
 
-  # Return true if it can be calculated. Any embedded relations are also evaluated with the same ranges?
-  # The rules is roughly outlined below
-  #    (cell 1 1) eval with input (cel 1 2)    
-  #    (next x (move ?x ?y))
-  evaluate : (input,ranges,functions) ->
-
 
   # TODO : Should be done lazily  
   # returns a list of Variable Terms ... These terms are not all on the same level

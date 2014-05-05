@@ -1,0 +1,33 @@
+(index 1) (index 2) (index 3)
+(<= (base (cell ?x ?y b)) (index ?x) (index ?y))
+
+(init (cell 0 0 b))
+(init (cell 1 1 b))
+(init (control xplayer))
+
+(<= (legal ?w (mark ?x ?y))
+(true (cell ?x ?y b))
+(true (control ?w)))
+
+
+;; Indexes are not the actual indxes - used here to ref the example 
+;;
+;;0 - (cell 0 0 b)              ; Constant 
+;;1 - (init (-0-))              ; Constant -> Init used to remove later
+;;
+;;2 - (mark ?x ?y)              ; from 5,7,11: [x=0,y=0],[x=0,y=1] -> (mark 0 0) (mark 1 1)
+;;3 - (legal ?w (mark ?x ?y)    ; from 2,7 : (legal xplayer (mark 0 0)) (legal xplayer (mark 1 1))
+;;
+;;4 - (cell ?x ?y b)            ; From 0,10 : [x=0,y=0],[x=0,y=1]
+;;5 - (true (cell ?x ?y b))     ; From 4 : x = [x=0,y=0],[x=0,y=1] - True has no meaning
+;;
+;;6 - (control ?w)              ; From 8 : w = xplayer
+;;7 - (true (control ?w))       ; from 6 : w = xplayer
+;;
+;;8 - (control xplayer)         ; Constant
+;;9 - (init (-8-))              ; 
+;;
+;;10- (cell 1 1 b)              ; Constant 
+;;11- (init (-10-))             ; Constant -> Init used to remove later
+
+
