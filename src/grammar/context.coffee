@@ -2,7 +2,6 @@ _ = require("underscore")
 
 terms = require('./terms')
 Relation = require('./relation').Relation
-Rule = require('./rule').Rule
 
 # TODO : 
 # 1) Instead of using lists and splice etc to maintan lists impliment a linked list scheme
