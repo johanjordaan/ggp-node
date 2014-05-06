@@ -61,6 +61,12 @@ class Context
         @base_relations.push(rel_terms[1].relation.context_index)
         return rel_terms[1].relation
       if rel_terms[0].name == 'legal'
+        # If the 2de term is not a relations then convert it to one
+        #
+        
+        #new_relation = new Relation([rel_term[2]],@relations.length)
+        #existing_relation = @lookup_relation_by_hash(new_relation.get_hash())  
+        
         @legal_relations.push(rel_terms[2].relation.context_index)  
 
 

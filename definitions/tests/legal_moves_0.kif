@@ -9,6 +9,13 @@
 (true (cell ?x ?y b))
 (true (control ?w)))
 
+(<= (legal ?w (mark ?x ?y))
+(true (cell ?x ?y b))
+(true (control ?w)))
+
+(<= (legal xplayer noop)
+(true (control oplayer)))
+
 
 ;; Indexes are not the actual indxes - used here to ref the example 
 ;;
