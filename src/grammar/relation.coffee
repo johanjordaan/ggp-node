@@ -10,11 +10,12 @@ terms  = require('../grammar/terms')
 # relation for quick access
 #
 class Relation
-  constructor : (@terms,@context_index) ->
+  constructor : (@terms) ->
     @hash = null
     @is_named_ind = null
     @name = null
     @is_constant_ind = null
+    @context_index = null
   
   # If the relation is named then return its name; the value of the first term, if it is a 
   # constant term. If the relation is not named then return null
@@ -129,6 +130,12 @@ class Relation
         variables = variables.concat(term.get_variables())
 
     return variables
+
+  set_context_index : (@context_index) ->
+
+  get_context_index : () ->
+    return @context_index 
+    
 
 
 

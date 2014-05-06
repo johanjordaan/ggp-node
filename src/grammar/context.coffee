@@ -30,57 +30,19 @@ class Context
     #@trancient_relations = []     # These relations will be killed on the next 'step'
     #@next_relations = []          # These relations will be moved  to transient after after the next step
 
-  # If the relation already exists then discard it and return the existing one
-  #
-  create_relation : (rel_terms) ->
-    #console.log '<><>',terms
 
-    if not _.isArray(rel_terms)
-      throw 'Terms need to be an array of terms. Parser issue?'
-
-
-    # Create the relation based on the terms
-    # If it exists then discard it and return the existing one
-    #
-    new_relation = new Relation(rel_terms,@relations.length)
-    existing_relation = @lookup_relation_by_hash(new_relation.get_hash())
-    if existing_relation?
-      return existing_relation
-
-
-    # Do the special GDL processing
-    #  
-    if rel_terms[0] instanceof terms.ConstantTerm 
-      if rel_terms[0].name == 'init'
-        @init_relations.push(rel_terms[1].relation.context_index)
-        return rel_terms[1].relation 
-      if rel_terms[0].name == 'true'
-        return rel_terms[1].relation
-      if rel_terms[0].name == 'base'
-        @base_relations.push(rel_terms[1].relation.context_index)
-        return rel_terms[1].relation
-      if rel_terms[0].name == 'legal'
-        # If the 2de term is not a relations then convert it to one
-        #
-        
-        #new_relation = new Relation([rel_term[2]],@relations.length)
-        #existing_relation = @lookup_relation_by_hash(new_relation.get_hash())  
-        
-        @legal_relations.push(rel_terms[2].relation.context_index)  
-
-
-
-
+  add_relation : (relation) ->
     # Add the relation to main list and lookup
     #
-    @relations.push(new_relation)
-    @relation_hash_lookup[new_relation.get_hash()] = new_relation.context_index
+    @relations.push(relation)
+    relation.set_context_index(@relations.length-1)
+    @relation_hash_lookup[relation.get_hash()] = relation.get_context_index()
     
-    #console.log '<><><>',new_relation.context_index,new_relation.toString(),new_relation.is_constant()
+    #console.log '<><><>',relation.get_context_index(),relation.toString(),relation.is_constant()
     # If it is a constant relation then add it to the constant list
     #
-    if new_relation.is_constant()
-      @constant_relations.push(new_relation.context_index)
+    if relation.is_constant()
+      @constant_relations.push(relation.get_context_index())
       # Ask each variable relation if it produces the new relation
       #
       #console.log '<><><>',_.keys(@variable_relations).length
@@ -89,11 +51,11 @@ class Context
         #console.log '}}}',variable_relation.toString(),index,variable_relation instanceof Relation
         #if variable_relation not instanceof Relation
         #  console.log 'WTF : ',variable_relation
-        if variable_relation.produces(new_relation)  
-          @productions[index].push(new_relation.context_index)
+        if variable_relation.produces(relation)  
+          @productions[index].push(relation.get_context_index())
     else
-      @variable_relations.push(new_relation.context_index)
-      @productions[new_relation.context_index] = []
+      @variable_relations.push(relation.get_context_index())
+      @productions[relation.get_context_index()] = []
       # Ask this relation if it procides any of the constant relations
       #
       for index in @constant_relations
@@ -101,14 +63,58 @@ class Context
         #console.log '}}}',constant_relation,index,constant_relation instanceof Relation
         #if constant_relation not instanceof Relation
         #  console.log 'WTF : ',constant_relation
-        if new_relation.produces(constant_relation)
-          @productions[new_relation.context_index].push(index)
-  
+        if relation.produces(constant_relation)
+          @productions[relation.get_context_index()].push(index)
+
+  _find_or_create_relation : (rel_terms) ->
+    new_relation = new Relation(rel_terms)
+    existing_relation = @lookup_relation_by_hash(new_relation.get_hash())
+    if existing_relation?
+      return { existing:true, relation:existing_relation }
+
+    return { existing:false, relation:new_relation }
+
+
+  # If the relation already exists then discard it and return the existing one
+  #
+  create_relation : (rel_terms) ->
+    #console.log '<><>',terms
+
+    if not _.isArray(rel_terms)
+      throw 'Terms need to be an array of terms. Parser issue?'
+
+    # Do the special GDL pre-processing
+    #  
+    if rel_terms[0] instanceof terms.ConstantTerm 
+      if rel_terms[0].name == 'init'
+        @init_relations.push(rel_terms[1].relation.get_context_index())
+        return rel_terms[1].relation 
+      else if rel_terms[0].name == 'true'
+        return rel_terms[1].relation
+      else if rel_terms[0].name == 'base'
+        @base_relations.push(rel_terms[1].relation.get_context_index())
+        return rel_terms[1].relation
+        
 
 
 
+    # Create the relation based on the terms
+    # If it exists then discard it and return the existing one
+    #
+    search_result = @_find_or_create_relation(rel_terms)
+    if search_result.existing
+      return search_result.relation
+       
+    @add_relation(search_result.relation)
 
-    return new_relation
+
+    # Do the special GDL post-processing
+    #  
+    if rel_terms[0] instanceof terms.ConstantTerm 
+      if rel_terms[0].name == 'legal'
+        @legal_relations.push(search_result.relation.get_context_index())
+
+    return search_result.relation
 
   # Returns the relation or null if it cannot be found
   #  
