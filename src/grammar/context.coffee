@@ -24,6 +24,9 @@ class Context
     @init_relations = []
     @base_relations = []
     @legal_relations = []
+    @goal_relations = []
+    @terminal_relations = []
+    @next_relations = []
 
 
     #@relation_hash_expansion = {} # Contains a hash and a array of expansions, eg { '(cell ?x)' : [0,1] }
@@ -96,15 +99,13 @@ class Context
         return rel_terms[1].relation
         
 
-
-
     # Create the relation based on the terms
     # If it exists then discard it and return the existing one
     #
     search_result = @_find_or_create_relation(rel_terms)
     if search_result.existing
       return search_result.relation
-       
+           
     @add_relation(search_result.relation)
 
 
@@ -113,6 +114,13 @@ class Context
     if rel_terms[0] instanceof terms.ConstantTerm 
       if rel_terms[0].name == 'legal'
         @legal_relations.push(search_result.relation.get_context_index())
+      if rel_terms[0].name == 'goal'
+        @goal_relations.push(search_result.relation.get_context_index())
+      if rel_terms[0].name == 'terminal'
+        @terminal_relations.push(search_result.relation.get_context_index())
+      if rel_terms[0].name == 'next'
+        @next_relations.push(search_result.relation.get_context_index())
+
 
     return search_result.relation
 
@@ -184,6 +192,10 @@ class Context
     ret_val += "Init Relations     : [#{@init_relations.length}]\n"
     ret_val += "Base Relations     : [#{@base_relations.length}]\n"
     ret_val += "Legal Relations    : [#{@legal_relations.length}]\n"
+    ret_val += "Goal Relations     : [#{@goal_relations.length}]\n"
+    ret_val += "Terminal Relations : [#{@terminal_relations.length}]\n"
+    ret_val += "Next Relations     : [#{@next_relations.length}]\n"
+
     if verbose? and verbose
       ret_val += "\n"
       for relation in @relations    

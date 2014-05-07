@@ -16,22 +16,29 @@ test = (filename,done,cb) ->
 
       done()
 
-
 describe 'GDLContext', (done) ->
   test 'eight_puzzle.kif',done,(ctx) ->
-    console.log ctx.toString()
-
-describe 'GDLContext', (done) ->
-  test 'tic-tac-toe.kif',done,(ctx) ->
+    console.log 'eight_puzzle.kif'
     console.log ctx.toString()
 
 describe 'GDLContext', (done) ->
   test 'three-player-tic-tac-chess.kif',done,(ctx) ->
+    console.log 'three-player-tic-tac-chess.kif'
     console.log ctx.toString()
 
 describe 'GDLContext', (done) ->
-  test 'tests/legal_moves_0.kif',done,(ctx) ->
-    console.log ctx.toString(true)
+  test 'tic-tac-toe.kif',done,(ctx) ->
+    console.log 'tic-tac-toe.kif'
+    console.log ctx.toString(false)
+
+    ctx.relations.length.should.equal 78
+    ctx.rules.length.should.equal 32
+
+
+
+#describe 'GDLContext', (done) ->
+#  test 'tests/legal_moves_0.kif',done,(ctx) ->
+#    console.log ctx.toString(true)
 
 ###
 describe 'GDLContext', (done) ->
