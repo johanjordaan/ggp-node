@@ -2,6 +2,7 @@ _ = require("underscore")
 
 terms = require('./terms')
 Relation = require('./relation').Relation
+State = require('./state').State
 
 # TODO : 
 # 1) Instead of using lists and splice etc to maintan lists impliment a linked list scheme
@@ -21,12 +22,15 @@ class Context
 
     @rules = []
 
+
     @init_relations = []
     @base_relations = []
     @legal_relations = []
     @goal_relations = []
     @terminal_relations = []
     @next_relations = []
+    @role_relations = []
+    @input_relations = []
 
 
     #@relation_hash_expansion = {} # Contains a hash and a array of expansions, eg { '(cell ?x)' : [0,1] }
@@ -93,11 +97,16 @@ class Context
         @init_relations.push(rel_terms[1].relation.get_context_index())
         return rel_terms[1].relation 
       else if rel_terms[0].name == 'true'
-        return rel_terms[1].relation
+        true_relation = rel_terms[1] 
+        if true_relation not instanceof terms.RelationTerm
+          true_relation = @create_relation([true_relation])
+        return true_relation
       else if rel_terms[0].name == 'base'
-        @base_relations.push(rel_terms[1].relation.get_context_index())
-        return rel_terms[1].relation
-        
+        base_relation = rel_terms[1] 
+        if base_relation not instanceof terms.RelationTerm
+          base_relation = @create_relation([base_relation])
+        @base_relations.push(base_relation.get_context_index())
+        return base_relation
 
     # Create the relation based on the terms
     # If it exists then discard it and return the existing one
@@ -120,6 +129,11 @@ class Context
         @terminal_relations.push(search_result.relation.get_context_index())
       if rel_terms[0].name == 'next'
         @next_relations.push(search_result.relation.get_context_index())
+      if rel_terms[0].name == 'role' 
+        if search_result.relation.is_constant()
+          @role_relations.push(search_result.relation.get_context_index())
+      if rel_terms[0].name == 'input'
+        @input_relations.push(search_result.relation.get_context_index())
 
 
     return search_result.relation
@@ -168,9 +182,13 @@ class Context
       # TODO : This might be an error case ? Or do we just ad the dependnats ?
       # If it has been found then just 
 
+    #console.log '=====',new_body  
     new_dependents = []  
     for term in new_body
+      #console.log '>>>',term
+      #console.log '////',term.get_hash()
       term_index = @relation_hash_lookup[term.get_hash()]
+      #console.log '_____',term_index
       new_dependents.push(term_index)
 
     @dependants[new_head_index].push new_dependents
@@ -180,7 +198,32 @@ class Context
     @rules.push new_head    
 
     return new_head
-    
+  
+
+  # Current state is the last state retrieved from this call IE the current state
+  # If current state is null or not defined then the initial state will be returned
+  # Transaitions is the moves in order of the definition of the roles
+  #  
+  get_state : (current_state,transitions) ->
+    next_state = new State(@)
+
+    # If the current state is not defined then assume we need to return the initial state
+    #
+    if !current_state?
+      for init_relation_index in @init_relations  
+        next_state.add_relation init_relation_index
+    else
+
+    return next_state
+
+  #  
+  evaluate : (relation_index) ->
+    if relation_index in @constant_relations
+      return true
+
+    return false    
+
+
 
   toString : (verbose) ->
     ret_val = "" 
@@ -195,11 +238,17 @@ class Context
     ret_val += "Goal Relations     : [#{@goal_relations.length}]\n"
     ret_val += "Terminal Relations : [#{@terminal_relations.length}]\n"
     ret_val += "Next Relations     : [#{@next_relations.length}]\n"
+    ret_val += "Role Relations     : [#{@role_relations.length}]\n"
+    ret_val += "Input Relations    : [#{@input_relations.length}]\n"
+
+
 
     if verbose? and verbose
       ret_val += "\n"
+      i = 0
       for relation in @relations    
-        ret_val += "#{relation.toString()}\n" 
+        ret_val += "#{i}:#{relation.toString()}\n"
+        i += 1 
     
     return ret_val
 

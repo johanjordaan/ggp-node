@@ -11,7 +11,7 @@ Context = require('../../grammar/context').Context
 parser = require('../../grammar/parser')
 
 it_should = (description,text,cb) ->
-  it "should #{description}", () ->
+  it "should #{description} - text", () ->
     context = parser.parse(text);
     cb(context)
 
@@ -60,7 +60,21 @@ describe 'Context', () ->
       lookup_relation.terms[2].name.should.equal relation.terms[2].name
 
 
-      
+  describe '#evaluate', () ->
+        
+    it_should 'should evaluate the relation to true', '(index 1)' ,(context) ->
+      context.evaluate(0).should.equal true
+    it_should 'should evaluate the relation to true', '(index 1)( <= (move ?x) (index ?x) )' ,(context) ->
+      #console.log context.dependants
+      #console.log context.productions
+      context.evaluate(0).should.equal true
+
+
+
+
+
+
+
 
 
 
