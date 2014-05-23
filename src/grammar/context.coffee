@@ -107,6 +107,14 @@ class Context
           base_relation = @create_relation([base_relation])
         @base_relations.push(base_relation.get_context_index())
         return base_relation
+      else if rel_terms[0].name == 'does'
+        rel_terms[0] = new terms.ConstantTerm('input')  
+      else if rel_terms[0].name == 'not'
+        not_relation = rel_terms[1] 
+        if not_relation not instanceof terms.RelationTerm
+          not_relation = @create_relation([not_relation])
+        rel_terms[1] = not_relation
+
 
     # Create the relation based on the terms
     # If it exists then discard it and return the existing one
